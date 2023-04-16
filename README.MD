@@ -3,9 +3,11 @@ This project aims to create an animator that shows the behaviour of many pathfin
 
 The project is written with HTML, CSS, JavaScript and Golang.
 <div float="left">
-    <img src="readme_files/html.svg" width=40 style="margin-right: 20px">
-    <img src="readme_files/css.svg" width=40 style="margin-right: 20px">
-    <img src="readme_files/javascript.svg" width=40 style="margin-right: 20px">
+    <img src="readme_files/html.svg" width=40>&nbsp;&nbsp;&nbsp;&nbsp;
+    <img src="readme_files/css.svg" width=40>
+    &nbsp;&nbsp;&nbsp;&nbsp;
+    <img src="readme_files/javascript.svg" width=40>
+    &nbsp;&nbsp;&nbsp;&nbsp;
     <img src="readme_files/go.svg" width=40>
 </div>
 
