@@ -1,0 +1,67 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Algorithms Visualizer</title>
+    <link rel="stylesheet" href="/static/style/main.css">
+</head>
+<body>
+    <canvas></canvas>
+    <div class="algorithm-config-panel">
+        <label>
+            <span>Grid Size: <span id="gridcount-display">10</span></span>
+            <input name="gridcount" type="range" min="4" max="15" value="10" step="1" >
+        </label>
+        <div class="type-selection">
+            <span>Brush Type</span>
+            <div class="type-selection-buttons">
+                <label>
+                    <input type="radio" checked name="brush-type" value="obstacle">
+                    <div>Obstacle</div>
+                </label>
+                <label>
+                    <input type="radio" name="brush-type" value="start">
+                    <div>Start Point</div>
+                </label>
+                <label>
+                    <input type="radio" name="brush-type" value="finish">
+                    <div>Finish Point</div>
+                </label>
+            </div>
+        </div>
+        <div class="type-selection">
+            <span>Brush Type</span>
+            <div class="type-selection-buttons">
+                <label>
+                    <input type="radio" checked name="algorithm-choice" value="dijkstra">
+                    <div>Dijkstra's</div>
+                </label>
+                <label>
+                    <input type="radio" name="algorithm-choice" value="a-star">
+                    <div>A*</div>
+                </label>
+            </div>
+        </div>
+        <div class="type-selection">
+            <span>Diagonals</span>
+            <div class="type-selection-buttons type-selection-buttons-aside">
+                <label>
+                    <input type="radio" name="diagonals-enabled" value="no">
+                    <div>Off</div>
+                </label>
+                <label>
+                    <input type="radio" checked name="diagonals-enabled" value="yes">
+                    <div>On</div>
+                </label>
+            </div>
+        </div>
+    </div>
+    <div id="submit-button">
+        <button>Find Path!</button>
+    </div>
+    <script src="/static/scripts/PathFinding/pathFinding.js" type="module"></script>
+</body>
+</html>
