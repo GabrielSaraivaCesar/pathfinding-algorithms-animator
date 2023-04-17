@@ -27,7 +27,6 @@ $ w=\sqrt{1^2+1^2}=\sqrt{2}\approx1.41 $
 
 <img src="readme_files/gridcolors.png" width=200>
 
-<br>
 <img src="readme_files/purple.png" width=10> Purple: Current vertex being visited<br>
 <img src="readme_files/light-purple.png" width=10> Light Purple: Already visited vertices<br>
 <img src="readme_files/orange.png" width=10> Orange: The path<br>
