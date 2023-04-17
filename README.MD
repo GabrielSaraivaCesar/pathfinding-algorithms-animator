@@ -21,6 +21,8 @@ By default, the edge weight is set to 1, but diagonals will get the Euclidean di
 
 $w=\sqrt{{1^2}+{1^2}}=\sqrt{2}\approx1.41$
 
+Note: Obstacles do not create any edges to other vertices.
+
 ### Grid colors
 <img src="readme_files/green.png" width=10> Green: Start point<br>
 <img src="readme_files/red.png" width=10> Red: Finish point<br>
