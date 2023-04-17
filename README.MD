@@ -32,6 +32,5 @@ $ w=\sqrt{1^2+1^2}=\sqrt{2}\approx1.41 $
 <img src="readme_files/orange.png" width=10> Orange: The path<br>
 
 <img src="readme_files/pathfinding-demo.gif" width=200>
-
-##### Dijkstra pathfinding algorithm demo
+<br>Dijkstra pathfinding algorithm demo
 
