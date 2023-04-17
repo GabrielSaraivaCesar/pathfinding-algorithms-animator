@@ -95,7 +95,7 @@ canvas {
     color: #fff;
 }
 
-#submit-button button {
+#action-buttons button {
     background-color: rgb(73, 121, 255);
     border: none;
     font-size: 18px;
@@ -104,21 +104,31 @@ canvas {
     color: #fff;
     cursor: pointer;
 }
-#submit-button button:hover {
+#action-buttons button:hover {
     background-color: rgb(58, 93, 192);
+
+}#action-buttons button:disabled {
+    opacity: 0.3;
+    cursor: default;
+}
+#action-buttons button#clear-button {
+    background-color: rgb(235, 41, 41);
+    margin-left: 24px;
+}
+#action-buttons button#clear-button:hover {
+    background-color: rgb(185, 58, 58);
 
 }
 
 
-#submit-button {
+#action-buttons {
     position: fixed;
     bottom: 20px;
     right: calc(300px + 40px);
     z-index: 10;
-    width: 300px;
     display: flex;
     justify-content: center;
-    padding: 24px 0;
+    padding: 24px ;
     background-color: white;
     border-top: 1px solid rgb(209, 209, 209);
     box-shadow: 0 0px 10px 5px var(--gray);

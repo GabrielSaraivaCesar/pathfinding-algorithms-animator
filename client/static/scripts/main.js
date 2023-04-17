@@ -1,7 +1,8 @@
 import InteractiveCanvas from "./shared/canvas.js";
-import {setUpGrid, mountEdges, getGridCoordsByAbsoluteCoords, getVertexIndexByGridCoords, gridGraph, drawGrid, getRelCoordsByGridCoords} from './PathFinding/pathFinding.js'
+import {setUpGrid, mountEdges, getGridCoordsByAbsoluteCoords, getVertexIndexByGridCoords, gridGraph, drawGrid, getAbsoluteCoordsByGridCoords, reorderInstructions} from './graph_setup.js'
 import { Graph } from "./shared/graph.js";
-import dijkstra from './PathFinding/dijkstra.js'
+import { DRAW_TAGS } from "./shared/constants.js";
+
 
 const canvas = new InteractiveCanvas(document.querySelector('canvas'), 60, false);
 
@@ -16,7 +17,8 @@ let brushType = document.querySelector('input[name=brush-type]:checked').value;
 let enableDiagonalOptions = document.querySelectorAll('input[name=diagonals-enabled]');
 let enableDiagonal = document.querySelector('input[name=diagonals-enabled]:checked').value === "yes";
 
-let submitButton = document.querySelector('#submit-button button');
+let submitButton = document.querySelector('#action-buttons button#submit-button');
+let clearButton = document.querySelector('#action-buttons button#clear-button');
 
 let getGridPixelSize = () => {
     let rect = canvas.canvas.getBoundingClientRect();
@@ -24,27 +26,114 @@ let getGridPixelSize = () => {
 }
 
 
+let currentAnimationFrame = 0;
+let framesPerSecond = 10;
+setInterval(() => {
+    currentAnimationFrame += 1;
+}, 1000/framesPerSecond)
+
+
 /**
- * @param {InteractiveCanvas} canvas
- * @param {GridVertex[]} path 
+ * @param {Number[]} path 
+ * @param {Number} startOnFrame 
  */
-function drawPath(canvas, path) {
-    for (let i = 1; i < path.length; i++) {
-        canvas.drawInstructions.push(() => {
+function drawPath(path, startOnFrame=0) {
+    for (let frame = 1; frame < path.length; frame++) {
+        let lastVertex = gridGraph.vertices[path[frame - 1]];
+        let currentVertex = gridGraph.vertices[path[frame]];
+        canvas.addDrawInstruction(() => {
+            if (currentAnimationFrame < frame+startOnFrame) {
+                return
+            }
+
+            let gridPixelSize = getGridPixelSize();
             canvas.context.beginPath();
-            let c = getRelCoordsByGridCoords(path[i-1].x, path[i-1].y, getGridPixelSize(), gridCount)
-            canvas.context.moveTo(canvas.getAbsX(c.x), canvas.getAbsY(c.y));
-            let c2 = getRelCoordsByGridCoords(path[i].x, path[i].y, getGridPixelSize(), gridCount)
-            canvas.context.lineTo(canvas.getAbsX(c2.x), canvas.getAbsY(c2.y))
+            let c = getAbsoluteCoordsByGridCoords(canvas, lastVertex.x, lastVertex.y, gridPixelSize, gridCount)
+            c.x += gridPixelSize/2;
+            c.y += gridPixelSize/2;
+
+            canvas.context.moveTo(c.x, c.y);
+            let c2 = getAbsoluteCoordsByGridCoords(canvas, currentVertex.x, currentVertex.y, gridPixelSize, gridCount)
+            c2.x += gridPixelSize/2;
+            c2.y += gridPixelSize/2;
+
+            canvas.context.lineTo(c2.x, c2.y)
             canvas.context.strokeStyle = "#fcba03";
             canvas.context.lineWidth = 3;
             canvas.context.stroke();
             canvas.context.strokeStyle = "#000000";
             canvas.context.lineWidth = 1;
             canvas.context.closePath();
-        })
+        }, DRAW_TAGS.PATH_ANIMATION)
     }
     canvas.draw();
+}
+
+
+function drawAnimation(animationFramesObj) {
+    for (let frame = 0; frame < animationFramesObj.CheckingNeighbour.length; frame++) {
+        canvas.addDrawInstruction(() => {
+            if (frame > currentAnimationFrame) {
+                return;
+            }
+            let gridPixelSize = getGridPixelSize();
+
+            animationFramesObj.CheckingNeighbour[frame].forEach(neighbourIndex => {
+                let neighbourVertex = gridGraph.vertices[neighbourIndex]
+                let xPos = canvas.getAbsX(gridPixelSize * neighbourVertex.x - (gridCount * gridPixelSize / 2))
+                let yPos = canvas.getAbsY(gridPixelSize * neighbourVertex.y - (gridCount * gridPixelSize / 2));
+
+                canvas.context.beginPath();
+                if (frame === currentAnimationFrame) {
+                    canvas.context.fillStyle = "#00000055";
+                } else {
+                    canvas.context.fillStyle = "#00000033";
+                }
+
+                canvas.context.rect(
+                    xPos, 
+                    yPos, 
+                    gridPixelSize, 
+                    gridPixelSize
+                );
+                canvas.context.fill();
+                canvas.context.fillStyle = "#000000";
+                canvas.context.closePath();
+            })
+        }, DRAW_TAGS.PATH_ANIMATION)
+        
+    }
+    for (let frame = 0; frame < animationFramesObj.CurrentVertex.length; frame++) {
+        let currentVertex = gridGraph.vertices[animationFramesObj.CurrentVertex[frame]];
+        canvas.addDrawInstruction(() => {
+            if (frame > currentAnimationFrame) {
+                return;
+            }
+
+            let gridPixelSize = getGridPixelSize();
+
+            let pos = getAbsoluteCoordsByGridCoords(canvas, currentVertex.x, currentVertex.y, gridPixelSize, gridCount)
+
+            canvas.context.beginPath();
+            if (frame === currentAnimationFrame) {
+                canvas.context.fillStyle = "#ad42f5";
+            } else {
+                canvas.context.fillStyle = "#f8edff";
+            }
+
+
+            canvas.context.rect(
+                pos.x, 
+                pos.y, 
+                gridPixelSize, 
+                gridPixelSize
+            );
+            canvas.context.fill();
+            canvas.context.fillStyle = "#000000";
+            canvas.context.closePath();
+        }, DRAW_TAGS.PATH_ANIMATION)
+
+    }
 }
 
 
@@ -80,7 +169,6 @@ canvas.canvas.addEventListener('click', (e) => {
             gridGraph.vertices[vertexI].isObstacle = !gridGraph.vertices[vertexI].isObstacle;
             gridGraph.vertices[vertexI].isStartPoint = false;
             gridGraph.vertices[vertexI].isFinishPoint = false;
-            mountEdges(gridCount, enableDiagonal);
         } else if (brushType === 'start') {
             gridGraph.vertices.forEach(v => {
                 v.isStartPoint = false;
@@ -97,6 +185,7 @@ canvas.canvas.addEventListener('click', (e) => {
             gridGraph.vertices[vertexI].isObstacle = false;
         } 
         gridGraph.vertices[vertexI]._statusLastChange = new Date().getTime();
+        mountEdges(gridCount, enableDiagonal);
     }
 });
 
@@ -132,6 +221,7 @@ function graphToJsonGraph(graph) {
     return jsonGraph;
 }
 
+
 submitButton.addEventListener('click', () => {
     let jsonGraph = graphToJsonGraph(gridGraph);
     fetch("/dijkstra", {
@@ -142,12 +232,29 @@ submitButton.addEventListener('click', () => {
         },
         body: JSON.stringify(jsonGraph)
     })
-    canvas.drawInstructions = [];
+    .then(response => {
+        response.json()
+        .then(jsonResponse => {
+            clearButton.removeAttribute("disabled")
+            canvas.clearDrawInstructions(DRAW_TAGS.PATH_ANIMATION);
+            currentAnimationFrame = 0;
+            jsonResponse.Path.reverse()
+            drawAnimation(jsonResponse.AnimationFramesObj)
+            drawPath(jsonResponse.Path, jsonResponse.AnimationFramesObj.CheckingNeighbour.length)
+            reorderInstructions(canvas);
+        })
+    })
+    .catch(err => {
+        console.error(err);
+    })
+})
+clearButton.addEventListener('click', () => {
+    clearButton.setAttribute("disabled", true)
+    canvas.clearDrawInstructions(DRAW_TAGS.PATH_ANIMATION);
+})
+
+window.addEventListener('resize', () => {
+    canvas.clearDrawInstructions(DRAW_TAGS.GRID)
     drawGrid(canvas, getGridPixelSize(), gridCount)
-
-    let startNode = gridGraph.vertices.find(v => v.isStartPoint);
-    let finishNode = gridGraph.vertices.find(v => v.isFinishPoint);
-
-    let {path, visited_frames, looking_at_vertex_frame} = dijkstra(gridGraph, startNode, finishNode);
-    drawPath(canvas, path)
+    reorderInstructions(canvas);
 })

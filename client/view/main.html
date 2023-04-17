@@ -13,7 +13,7 @@
     <div class="algorithm-config-panel">
         <label>
             <span>Grid Size: <span id="gridcount-display">10</span></span>
-            <input name="gridcount" type="range" min="4" max="30" value="10" step="1" >
+            <input name="gridcount" type="range" min="4" max="50" value="10" step="1" >
         </label>
         <div class="type-selection">
             <span>Brush Type</span>
@@ -59,8 +59,9 @@
             </div>
         </div>
     </div>
-    <div id="submit-button">
-        <button>Find Path!</button>
+    <div id="action-buttons">
+        <button id="submit-button">Find Path!</button>
+        <button id="clear-button" disabled>Clear</button>
     </div>
     <script src="/client/static/scripts/main.js" type="module"></script>
 </body>

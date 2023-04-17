@@ -1,0 +1,7 @@
+
+const DRAW_TAGS = {
+    PATH_ANIMATION: "PATH_ANIMATION",
+    GRID: "GRID"
+}
+
+export { DRAW_TAGS }

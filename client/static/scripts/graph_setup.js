@@ -1,5 +1,6 @@
-import InteractiveCanvas from "../shared/canvas.js";
-import { Graph, GraphVertex } from "../shared/graph.js";
+import InteractiveCanvas from "./shared/canvas.js";
+import { Graph, GraphVertex } from "./shared/graph.js";
+import { DRAW_TAGS } from "./shared/constants.js";
 
 class GridVertex extends GraphVertex{
     isObstacle = false;
@@ -19,9 +20,11 @@ class GridVertex extends GraphVertex{
 const gridGraph = new Graph();
 
 /**
+ * Given a grid coordinate, returns the graph vertex index located there
  * @param {Number} x
  * @param {Number} y
  * @param {Number} gridCount
+ * @returns {Number} Vertex index
  */
 function getVertexIndexByGridCoords(x, y, gridCount) {
     let idx = x * gridCount + y;
@@ -31,10 +34,15 @@ function getVertexIndexByGridCoords(x, y, gridCount) {
     return idx;
 }
 
+
 /**
+ * Given a canvas absolute coordinate, returns the grid coordinates
  * @param {InteractiveCanvas} canvas
  * @param {Number} x
  * @param {Number} y
+ * @param {Number} gridPixelSize
+ * @param {Number} gridCount
+ * @returns {{x: Number, y: Number}} Grid Coordinates
  */
 function getGridCoordsByAbsoluteCoords(canvas, x, y, gridPixelSize, gridCount) {
     let relX = canvas.getRelX(x);
@@ -46,17 +54,31 @@ function getGridCoordsByAbsoluteCoords(canvas, x, y, gridPixelSize, gridCount) {
     return result
 }
 
-function getRelCoordsByGridCoords(x, y, gridPixelSize, gridCount) {
-    let relX = x * gridPixelSize - (gridCount * gridPixelSize / 2) + (gridPixelSize/2);
-    let relY = y * gridPixelSize - (gridCount * gridPixelSize / 2) + (gridPixelSize/2);
+/**
+ * Given grid coordinates, returns canvas absolute coordinates
+ * @param {InteractiveCanvas} canvas
+ * @param {Number} x
+ * @param {Number} y
+ * @param {Number} gridPixelSize
+ * @param {Number} gridCount
+ * @returns {{x: Number, y: Number}} Canvas absolute Coordinates
+ */
+function getAbsoluteCoordsByGridCoords(canvas, x, y, gridPixelSize, gridCount) {
+    let gridFullSize = gridPixelSize * gridCount;
+    let gridLeft = canvas.getAbsX(-gridFullSize/2);
+    let gridTop = canvas.getAbsY(-gridFullSize/2);
 
-    return {x: relX, y: relY}
+    let absX = gridLeft + (x * gridPixelSize);
+    let absY = gridTop + (y * gridPixelSize);
+
+    return {x: absX, y: absY}
 }
 
 
 /**
  * @param {GraphVertex} v1
  * @param {GraphVertex} v2
+ * @param {Number} weight
  */
 function addEdgeIfNone(v1, v2, weight) {
     if (v1.isObstacle || v2.isObstacle) return;
@@ -119,7 +141,7 @@ function drawGrid(canvas, gridPixelSize, gridCount) {
     for (let x = 0; x < gridCount; x++) {
         for (let y = 0; y < gridCount; y++) {
 
-            canvas.drawInstructions.push(() => {
+            canvas.addDrawInstruction(() => {
                 canvas.context.beginPath();
                 let vertexI = getVertexIndexByGridCoords(x, y, gridCount);
 
@@ -180,24 +202,24 @@ function drawGrid(canvas, gridPixelSize, gridCount) {
                     canvas.context.strokeStyle = "#000000";
                     
                 } 
-            })
+            }, DRAW_TAGS.GRID)
         }
     }
     canvas.draw();
 }
 
 
-
 /**
  * @param {InteractiveCanvas} canvas
  * @param {Number} gridPixelSize
  * @param {Number} gridCount
+ * @param {Boolean} enableDiagonal
  */
 function setUpGrid(canvas, gridPixelSize, gridCount, enableDiagonal=true) {
     // Reseting previous
     gridGraph.vertices = [];
     gridGraph.edges = [];
-    canvas.drawInstructions = [];
+    canvas.clearDrawInstructions();
     
 
     for (let x = 0; x < gridCount; x++) {
@@ -210,4 +232,11 @@ function setUpGrid(canvas, gridPixelSize, gridCount, enableDiagonal=true) {
 }
 
 
-export {setUpGrid, drawGrid, mountEdges, addEdgeIfNone, getRelCoordsByGridCoords, getGridCoordsByAbsoluteCoords, getVertexIndexByGridCoords, gridGraph}
+/**
+ * @param {InteractiveCanvas} canvas
+ */
+function reorderInstructions(canvas) {
+    canvas.reorderInstructions([DRAW_TAGS.PATH_ANIMATION, DRAW_TAGS.GRID]);
+}
+
+export {setUpGrid, drawGrid, mountEdges, addEdgeIfNone, getAbsoluteCoordsByGridCoords, getGridCoordsByAbsoluteCoords, getVertexIndexByGridCoords, gridGraph, reorderInstructions}

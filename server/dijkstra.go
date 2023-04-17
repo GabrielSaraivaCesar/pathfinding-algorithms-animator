@@ -12,10 +12,14 @@ type AnimationFrames struct {
 	CurrentVertex     []int
 	CheckingNeighbour [][]int
 }
+type AjaxDijkstraResponse struct {
+	AnimationFramesObj AnimationFrames
+	Path               []int
+}
 
-func Dijkstra(graph *Graph, start *Vertex, finish *Vertex) []*Vertex {
+func Dijkstra(graph *Graph, start *Vertex, finish *Vertex) ([]*Vertex, AnimationFrames) {
 	t := time.Now()
-	// var animationFrames AnimationFrames = AnimationFrames{CurrentVertex: []int{}, CheckingNeighbour: [][]int{}}
+	var animationFrames AnimationFrames = AnimationFrames{CurrentVertex: []int{}, CheckingNeighbour: [][]int{}}
 
 	start.dijkstraSummedWeight = 0
 	var unvisitedVertices []*Vertex = []*Vertex{start}
@@ -27,8 +31,8 @@ func Dijkstra(graph *Graph, start *Vertex, finish *Vertex) []*Vertex {
 		unvisitedVertices = unvisitedVertices[1:] // Removing current vertex from slice
 
 		// Animation related
-		// animationFrames.CurrentVertex = append(animationFrames.CurrentVertex, currentVertex.id)
-		// animationFrames.CheckingNeighbour = append(animationFrames.CheckingNeighbour, []int{})
+		animationFrames.CurrentVertex = append(animationFrames.CurrentVertex, currentVertex.id)
+		animationFrames.CheckingNeighbour = append(animationFrames.CheckingNeighbour, []int{})
 
 		if currentVertex == finish {
 			break
@@ -48,7 +52,7 @@ func Dijkstra(graph *Graph, start *Vertex, finish *Vertex) []*Vertex {
 			}
 
 			// animation related
-			// animationFrames.CheckingNeighbour[len(animationFrames.CheckingNeighbour)-1] = append(animationFrames.CheckingNeighbour[len(animationFrames.CheckingNeighbour)-1], neighbour.id)
+			animationFrames.CheckingNeighbour[len(animationFrames.CheckingNeighbour)-1] = append(animationFrames.CheckingNeighbour[len(animationFrames.CheckingNeighbour)-1], neighbour.id)
 
 			// Validation
 			if neighbour.visited {
@@ -103,10 +107,10 @@ func Dijkstra(graph *Graph, start *Vertex, finish *Vertex) []*Vertex {
 
 		elapsed := time.Since(t)
 		fmt.Printf("%vms\n", elapsed.Milliseconds())
-		return path
+		return path, animationFrames
 	}
 
-	return []*Vertex{}
+	return []*Vertex{}, animationFrames
 }
 
 func AjaxDijkstra(writer http.ResponseWriter, request *http.Request) {
@@ -140,7 +144,14 @@ func AjaxDijkstra(writer http.ResponseWriter, request *http.Request) {
 		return
 	}
 
-	var path []*Vertex = Dijkstra(&graph, startVertex, finishVertex)
+	var path []*Vertex
+	var animationFrames AnimationFrames
+	path, animationFrames = Dijkstra(&graph, startVertex, finishVertex)
+
 	var indexesPath []int = graphPathToIndexesPath(&graph, path)
-	fmt.Fprintf(writer, "%+v", indexesPath)
+
+	var responsePackage AjaxDijkstraResponse = AjaxDijkstraResponse{AnimationFramesObj: animationFrames, Path: indexesPath}
+
+	writer.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(writer).Encode(responsePackage)
 }

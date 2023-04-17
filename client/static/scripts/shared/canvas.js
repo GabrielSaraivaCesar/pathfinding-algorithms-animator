@@ -10,7 +10,7 @@ class InteractiveCanvas {
     offsetX = 0;
     /** @type {Number} */
     offsetY = 0;
-    /** @type {Function[]} */
+    /** @type {{callback:Function, tag:string}[]} */
     drawInstructions = [];
 
     // Dragging
@@ -66,7 +66,9 @@ class InteractiveCanvas {
     }
     draw() {
         this.clear();
-        this.drawInstructions.forEach(cb => cb(this));
+        this.drawInstructions.forEach(instruction => {
+            instruction.callback();
+        });
     }
 
     /** 
@@ -112,6 +114,42 @@ class InteractiveCanvas {
         let centerOffset = this.canvas.height / 2;
         return y - this.offsetY - centerOffset;
     }
+
+    addDrawInstruction(cb, tag) {
+        this.drawInstructions.push({
+            callback: cb,
+            tag: tag
+        })
+    }
+
+    clearDrawInstructions(tagFilter) {
+        if (!tagFilter) {
+            this.drawInstructions = [];
+        } else {
+            this.drawInstructions = this.drawInstructions.filter(instruction => {
+                return instruction.tag !== tagFilter;
+            })
+        }
+    }
+
+    reorderInstructions(tagOrder) {
+        this.drawInstructions.sort((a, b) => {
+            let aIndex = tagOrder.findIndex((tag) => {
+                return tag === a.tag;
+            });
+            let bIndex = tagOrder.findIndex((tag) => {
+                return tag === b.tag;
+            })
+            if (aIndex < bIndex) {
+                return -1;
+            } else if (aIndex > bIndex) {
+                return 1;
+            } else {
+                return 0;
+            }
+        })
+    }
+
 
 }
 
