@@ -36,5 +36,5 @@ $w=\sqrt{{1^2}+{1^2}}=\sqrt{2}\approx1.41$
 ## Demos
 Dijkstra:
 
-<img src="readme_files/pathfinding-demo2.gif" width=200>
+<img src="readme_files/pathfinding-demo2.gif">
 
