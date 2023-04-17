@@ -24,6 +24,9 @@ func Dijkstra(graph *Graph, start *Vertex, finish *Vertex) ([]*Vertex, Animation
 	start.dijkstraSummedWeight = 0
 	var unvisitedVertices []*Vertex = []*Vertex{start}
 
+	var iterationCount int = 0
+	var worstCase float64 = float64(len(graph.edges)) + (float64(len(graph.vertices)) * math.Log(float64(len(graph.vertices))))
+
 	// Marking summed weights
 	for len(unvisitedVertices) > 0 {
 		var currentVertex *Vertex = unvisitedVertices[0]
@@ -51,6 +54,8 @@ func Dijkstra(graph *Graph, start *Vertex, finish *Vertex) ([]*Vertex, Animation
 				continue // Prevent loops
 			}
 
+			iterationCount++
+
 			// animation related
 			animationFrames.CheckingNeighbour[len(animationFrames.CheckingNeighbour)-1] = append(animationFrames.CheckingNeighbour[len(animationFrames.CheckingNeighbour)-1], neighbour.id)
 
@@ -65,16 +70,9 @@ func Dijkstra(graph *Graph, start *Vertex, finish *Vertex) ([]*Vertex, Animation
 			}
 
 			// Detect if is already in the list
-			var isInUnvisitedSlice bool = false
-			for uX := 0; uX < len(unvisitedVertices); uX++ {
-				if unvisitedVertices[uX] == neighbour {
-					isInUnvisitedSlice = true
-					break
-				}
-			}
-
-			if !isInUnvisitedSlice {
+			if neighbour.isInUnvisitedSlice == false {
 				unvisitedVertices = append(unvisitedVertices, neighbour)
+				neighbour.isInUnvisitedSlice = true
 			}
 		}
 	}
@@ -106,7 +104,7 @@ func Dijkstra(graph *Graph, start *Vertex, finish *Vertex) ([]*Vertex, Animation
 		}
 
 		elapsed := time.Since(t)
-		fmt.Printf("%vms\n", elapsed.Milliseconds())
+		fmt.Printf("%vms - iterations: %v \n - Worst case: %v", elapsed.Milliseconds(), iterationCount, worstCase)
 		return path, animationFrames
 	}
 

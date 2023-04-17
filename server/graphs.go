@@ -20,10 +20,14 @@ type Edge struct {
 	vertices []*Vertex
 	weight   float64
 }
+
+// besides "id" and "edges", the rest of the fields are responsible to store data to prevent having to iterate through some slices multiple times
 type Vertex struct {
-	id                   int
-	edges                []*Edge
+	id    int
+	edges []*Edge
+
 	dijkstraSummedWeight float64
+	isInUnvisitedSlice   bool
 	visited              bool
 }
 type Graph struct {
