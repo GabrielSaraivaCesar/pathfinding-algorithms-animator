@@ -1,10 +1,15 @@
 package main
 
 import (
+	"algorithms-animator/server"
+	"fmt"
 	"html/template"
 	"log"
 	"net/http"
+	"strconv"
 )
+
+const _PORT int = 8080
 
 func rootHandler(writer http.ResponseWriter, request *http.Request) {
 	type RootPageContext struct {
@@ -13,13 +18,14 @@ func rootHandler(writer http.ResponseWriter, request *http.Request) {
 	}
 
 	context := RootPageContext{Title: "Algorithms Animator", Message: "Hello World :D"}
-	template, _ := template.ParseFiles("view/main.html")
+	template, _ := template.ParseFiles("client/view/main.html")
 	template.Execute(writer, context)
 }
 
 func main() {
-	http.Handle("/static/", http.FileServer(http.Dir("./")))
+	fmt.Printf("Starting service... - [localhost:%v]\n", _PORT)
+	http.Handle("/client/static/", http.FileServer(http.Dir("./")))
 	http.HandleFunc("/", rootHandler)
-	http.HandleFunc("/dijkstra", ajaxDijkstra)
-	log.Fatal(http.ListenAndServe(":8080", nil))
+	http.HandleFunc("/dijkstra", server.AjaxDijkstra)
+	log.Fatal(http.ListenAndServe(":"+strconv.Itoa(_PORT), nil))
 }
