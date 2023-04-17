@@ -47,6 +47,14 @@ canvas {
     display: flex;
     flex-direction: column;
 }
+.algorithm-config-panel label input {
+    border: 1px solid var(--gray);
+    height: 50px;
+    outline: none;
+    border-radius: var(--round-edges);
+    margin-top: 12px;
+    padding: 0 12px;
+}
 .algorithm-config-panel .type-selection {
     padding: 15px 20px;
 }

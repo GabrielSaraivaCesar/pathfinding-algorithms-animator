@@ -5,6 +5,10 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate"/>
+    <meta http-equiv="Pragma" content="no-cache"/>
+    <meta http-equiv="Expires" content="0"/>
+
     <title>Algorithms Visualizer</title>
     <link rel="stylesheet" href="/client/static/style/main.css">
 </head>
@@ -12,8 +16,8 @@
     <canvas oncontextmenu="return false;"></canvas>
     <div class="algorithm-config-panel">
         <label>
-            <span>Grid Size: <span id="gridcount-display">10</span></span>
-            <input name="gridcount" type="range" min="4" max="50" value="10" step="1" >
+            <span>Grid Size: <span id="gridcount-display"></span></span>
+            <input name="gridcount" type="range" min="4" max="20" value="10" step="1" >
         </label>
         <div class="type-selection">
             <span>Brush Type</span>
@@ -29,6 +33,10 @@
                 <label>
                     <input type="radio" name="brush-type" value="finish">
                     <div>Finish Point</div>
+                </label>
+                <label>
+                    <input type="radio" name="brush-type" value="eraser">
+                    <div>Eraser</div>
                 </label>
             </div>
         </div>
@@ -58,10 +66,14 @@
                 </label>
             </div>
         </div>
+        <label>
+            <span>FPS:</span>
+            <input name="fps" type="number" min="1" value="10">
+        </label>
     </div>
     <div id="action-buttons">
         <button id="submit-button">Find Path!</button>
-        <button id="clear-button" disabled>Clear</button>
+        <button id="clear-button" disabled>Clear Path</button>
     </div>
     <script src="/client/static/scripts/main.js" type="module"></script>
 </body>

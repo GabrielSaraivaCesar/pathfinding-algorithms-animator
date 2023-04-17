@@ -5,11 +5,13 @@ import { DRAW_TAGS } from "./shared/constants.js";
 
 
 const canvas = new InteractiveCanvas(document.querySelector('canvas'), 60, false);
+let isClickingCanvas = false;
 
-let gridCount = 10;
 
 let gridCountInput = document.querySelector("input[name=gridcount]");
+let gridCount = gridCountInput.value;
 let gridCountDisplay = document.querySelector('#gridcount-display');
+gridCountDisplay.textContent = gridCount;
 
 let brushTypeOptions = document.querySelectorAll('input[name=brush-type]');
 let brushType = document.querySelector('input[name=brush-type]:checked').value;
@@ -19,6 +21,9 @@ let enableDiagonal = document.querySelector('input[name=diagonals-enabled]:check
 
 let submitButton = document.querySelector('#action-buttons button#submit-button');
 let clearButton = document.querySelector('#action-buttons button#clear-button');
+clearButton.setAttribute('disabled', true);
+
+let fpsInput = document.querySelector('input[name=fps]');
 
 let getGridPixelSize = () => {
     let rect = canvas.canvas.getBoundingClientRect();
@@ -27,10 +32,16 @@ let getGridPixelSize = () => {
 
 
 let currentAnimationFrame = 0;
-let framesPerSecond = 10;
-setInterval(() => {
-    currentAnimationFrame += 1;
-}, 1000/framesPerSecond)
+let framesPerSecond = fpsInput.value;
+let animationInterval = null;
+
+function createAnimationInterval() {
+    window.clearInterval(animationInterval);
+    animationInterval = window.setInterval(() => {
+        currentAnimationFrame += 1;
+    }, 1000/framesPerSecond)
+}
+createAnimationInterval();
 
 
 /**
@@ -136,59 +147,6 @@ function drawAnimation(animationFramesObj) {
     }
 }
 
-
-setUpGrid(canvas, getGridPixelSize(), gridCount, enableDiagonal);
-
-gridCountInput.addEventListener('input', (e) => {
-    gridCount = e.target.value;
-    gridCountDisplay.textContent = gridCount;
-    setUpGrid(canvas, getGridPixelSize(), gridCount, enableDiagonal);
-})
-
-brushTypeOptions.forEach(opt => {
-    opt.addEventListener('change', (e) => {
-        brushType = e.target.value;
-    })
-})
-
-enableDiagonalOptions.forEach(opt => {
-    opt.addEventListener('change', (e) => {
-        enableDiagonal = e.target.value === "yes";
-        
-        mountEdges(gridCount, enableDiagonal);
-    })
-})
-
-canvas.canvas.addEventListener('click', (e) => {
-    let rect = canvas.canvas.getBoundingClientRect();
-    
-    let clickCoords = getGridCoordsByAbsoluteCoords(canvas, e.clientX-rect.left, e.clientY-rect.top, getGridPixelSize(), gridCount);
-    let vertexI = getVertexIndexByGridCoords(clickCoords.x, clickCoords.y, gridCount);
-    if (vertexI !== null) {
-        if (brushType === 'obstacle') {
-            gridGraph.vertices[vertexI].isObstacle = !gridGraph.vertices[vertexI].isObstacle;
-            gridGraph.vertices[vertexI].isStartPoint = false;
-            gridGraph.vertices[vertexI].isFinishPoint = false;
-        } else if (brushType === 'start') {
-            gridGraph.vertices.forEach(v => {
-                v.isStartPoint = false;
-            })
-            gridGraph.vertices[vertexI].isStartPoint = !gridGraph.vertices[vertexI].isStartPoint;
-            gridGraph.vertices[vertexI].isFinishPoint = false;
-            gridGraph.vertices[vertexI].isObstacle = false;
-        } else if (brushType === 'finish') {
-            gridGraph.vertices.forEach(v => {
-                v.isFinishPoint = false;
-            })
-            gridGraph.vertices[vertexI].isFinishPoint = !gridGraph.vertices[vertexI].isFinishPoint;
-            gridGraph.vertices[vertexI].isStartPoint = false;
-            gridGraph.vertices[vertexI].isObstacle = false;
-        } 
-        gridGraph.vertices[vertexI]._statusLastChange = new Date().getTime();
-        mountEdges(gridCount, enableDiagonal);
-    }
-});
-
 /**
  * @param {Graph} graph 
  * @returns {{
@@ -221,6 +179,113 @@ function graphToJsonGraph(graph) {
     return jsonGraph;
 }
 
+
+setUpGrid(canvas, getGridPixelSize(), gridCount, enableDiagonal);
+
+gridCountInput.addEventListener('input', (e) => {
+    gridCount = e.target.value;
+    gridCountDisplay.textContent = gridCount;
+    setUpGrid(canvas, getGridPixelSize(), gridCount, enableDiagonal);
+})
+
+brushTypeOptions.forEach(opt => {
+    opt.addEventListener('change', (e) => {
+        brushType = e.target.value;
+    })
+})
+
+enableDiagonalOptions.forEach(opt => {
+    opt.addEventListener('change', (e) => {
+        enableDiagonal = e.target.value === "yes";
+        
+        mountEdges(gridCount, enableDiagonal);
+    })
+})
+
+function clickVertexHandler(vertex) {
+    let originalStatus = false;
+    let currentStatus = false;
+    if (brushType === 'obstacle') {
+        originalStatus = vertex.isObstacle;
+        currentStatus = true;
+        vertex.isObstacle = true;
+        vertex.isStartPoint = false;
+        vertex.isFinishPoint = false;
+    } else if (brushType === 'start') {
+        originalStatus = vertex.isStartPoint;
+        currentStatus = true;
+        gridGraph.vertices.forEach(v => {
+            if (v != vertex && v.isStartPoint) {
+                v.isStartPoint = false;
+                v._statusLastChange = null;
+            }
+        })
+        vertex.isStartPoint = true;
+        vertex.isFinishPoint = false;
+        vertex.isObstacle = false;
+    } else if (brushType === 'finish') {
+        originalStatus = vertex.isFinishPoint;
+        currentStatus = true;
+        gridGraph.vertices.forEach(v => {
+            if (v != vertex && v.isFinishPoint) {
+                v.isFinishPoint = false;
+                v._statusLastChange = null;
+            }
+        })
+        vertex.isFinishPoint = true;
+        vertex.isStartPoint = false;
+        vertex.isObstacle = false;
+    }  else if (brushType === 'eraser') {
+        currentStatus = false;
+        originalStatus = vertex.isFinishPoint || vertex.isStartPoint || vertex.isObstacle;
+        vertex.isFinishPoint = false;
+        vertex.isStartPoint = false;
+        vertex.isObstacle = false;
+    }
+
+    if (originalStatus != currentStatus) {
+        vertex._statusLastChange = new Date().getTime();
+    }
+    mountEdges(gridCount, enableDiagonal);
+}
+
+
+canvas.canvas.addEventListener('mouseup', e => {
+    isClickingCanvas = false;
+});
+canvas.canvas.addEventListener('mouseleave', e => {
+    isClickingCanvas = false;
+});
+canvas.canvas.addEventListener('mouseout', e => {
+    isClickingCanvas = false;
+});
+canvas.canvas.addEventListener('mousedown', e => {
+    if (e.button === 0) {
+        let rect = canvas.canvas.getBoundingClientRect();
+        let clickCoords = getGridCoordsByAbsoluteCoords(canvas, e.clientX-rect.left, e.clientY-rect.top, getGridPixelSize(), gridCount);
+        let vertexI = getVertexIndexByGridCoords(clickCoords.x, clickCoords.y, gridCount);
+        if (vertexI === null) {
+            return;
+        }
+
+        isClickingCanvas = true;
+        let vertex = gridGraph.vertices[vertexI];
+        clickVertexHandler(vertex);
+    }
+})
+canvas.canvas.addEventListener('mousemove', (e) => {
+    if (isClickingCanvas === false) {
+        return;
+    }
+    let rect = canvas.canvas.getBoundingClientRect();
+    let clickCoords = getGridCoordsByAbsoluteCoords(canvas, e.clientX-rect.left, e.clientY-rect.top, getGridPixelSize(), gridCount);
+    let vertexI = getVertexIndexByGridCoords(clickCoords.x, clickCoords.y, gridCount);
+
+    if (vertexI !== null) {
+        let vertex = gridGraph.vertices[vertexI];
+        clickVertexHandler(vertex);
+    }
+});
 
 submitButton.addEventListener('click', () => {
     let jsonGraph = graphToJsonGraph(gridGraph);
@@ -257,4 +322,9 @@ window.addEventListener('resize', () => {
     canvas.clearDrawInstructions(DRAW_TAGS.GRID)
     drawGrid(canvas, getGridPixelSize(), gridCount)
     reorderInstructions(canvas);
+})
+
+fpsInput.addEventListener("input", (e) => {
+    framesPerSecond = e.target.value;
+    createAnimationInterval();
 })
