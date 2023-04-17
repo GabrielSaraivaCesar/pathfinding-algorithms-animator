@@ -18,7 +18,7 @@ Golang is being used to execute the algorithms in the server side, so javascript
 The grid you see in the software is a visual representation of a graph, where every square is a vertex. The vertices are connected with their adjacent vertices, including the diagonals if "Diagonals" switch is on.
 
 The edge weight is, by default, set to 1, but diagonals will get the euclidian distance as the weight, therefore:
-$ w=\sqrt{1^2+1^2}=\sqrt{2}\approx1.41 $
+$w=\sqrt{{1^2}+{1^2}}=\sqrt{2}\approx1.41$
 
 ### Grid colors
 <img src="readme_files/green.png" width=10> Green: Start point<br>
