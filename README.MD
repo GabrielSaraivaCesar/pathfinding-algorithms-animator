@@ -33,3 +33,8 @@ $w=\sqrt{{1^2}+{1^2}}=\sqrt{2}\approx1.41$
 
 <img src="readme_files/pathfinding-demo.gif" width=200>
 
+## Demos
+Dijkstra:
+
+<img src="readme_files/pathfinding-demo2.gif" width=200>
+
