@@ -152,13 +152,22 @@ function drawGrid(canvas, gridPixelSize, gridCount) {
                     let xPos = canvas.getAbsX(gridPixelSize * x - (gridCount * gridPixelSize / 2))
                     let yPos = canvas.getAbsY(gridPixelSize * y - (gridCount * gridPixelSize / 2));
 
-                    canvas.context.roundRect(
-                        xPos + ((1-animationProgress) * (gridPixelSize)/2), 
-                        yPos + ((1-animationProgress) * (gridPixelSize)/2), 
-                        gridPixelSize - 2 * ((1-animationProgress) * (gridPixelSize)/2), 
-                        gridPixelSize - 2*  ((1-animationProgress) * (gridPixelSize)/2),
-                        (1-animationProgress) * 60
-                    );
+                    if (canvas.context.roundRect) { // Check compatibility
+                        canvas.context.roundRect(
+                            xPos + ((1-animationProgress) * (gridPixelSize)/2), 
+                            yPos + ((1-animationProgress) * (gridPixelSize)/2), 
+                            gridPixelSize - 2 * ((1-animationProgress) * (gridPixelSize)/2), 
+                            gridPixelSize - 2*  ((1-animationProgress) * (gridPixelSize)/2),
+                            (1-animationProgress) * 60
+                        );
+                    } else {
+                        canvas.context.rect(
+                            xPos + ((1-animationProgress) * (gridPixelSize)/2), 
+                            yPos + ((1-animationProgress) * (gridPixelSize)/2), 
+                            gridPixelSize - 2 * ((1-animationProgress) * (gridPixelSize)/2), 
+                            gridPixelSize - 2*  ((1-animationProgress) * (gridPixelSize)/2),
+                        );
+                    }
                     
                     if (gridGraph.vertices[vertexI].isStartPoint) {
                         canvas.context.fillStyle = "#57b33b";
@@ -177,28 +186,6 @@ function drawGrid(canvas, gridPixelSize, gridCount) {
     canvas.draw();
 }
 
-/**
- * @param {InteractiveCanvas} canvas
- * @param {GridVertex[]} path 
- */
-function drawPath(canvas, path) {
-    for (let i = 1; i < path.length; i++) {
-        canvas.drawInstructions.push(() => {
-            canvas.context.beginPath();
-            let c = getRelCoordsByGridCoords(path[i-1].x, path[i-1].y, getGridPixelSize(), gridCount)
-            canvas.context.moveTo(canvas.getAbsX(c.x), canvas.getAbsY(c.y));
-            let c2 = getRelCoordsByGridCoords(path[i].x, path[i].y, getGridPixelSize(), gridCount)
-            canvas.context.lineTo(canvas.getAbsX(c2.x), canvas.getAbsY(c2.y))
-            canvas.context.strokeStyle = "#fcba03";
-            canvas.context.lineWidth = 3;
-            canvas.context.stroke();
-            canvas.context.strokeStyle = "#000000";
-            canvas.context.lineWidth = 1;
-            canvas.context.closePath();
-        })
-    }
-    canvas.draw();
-}
 
 
 /**
@@ -223,4 +210,4 @@ function setUpGrid(canvas, gridPixelSize, gridCount, enableDiagonal=true) {
 }
 
 
-export {setUpGrid, drawPath, drawGrid, mountEdges, addEdgeIfNone, getRelCoordsByGridCoords, getGridCoordsByAbsoluteCoords, getVertexIndexByGridCoords, gridGraph}
+export {setUpGrid, drawGrid, mountEdges, addEdgeIfNone, getRelCoordsByGridCoords, getGridCoordsByAbsoluteCoords, getVertexIndexByGridCoords, gridGraph}

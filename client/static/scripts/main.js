@@ -1,6 +1,7 @@
 import InteractiveCanvas from "./shared/canvas.js";
-import {setUpGrid, mountEdges, getGridCoordsByAbsoluteCoords, getVertexIndexByGridCoords, gridGraph} from './PathFinding/pathFinding.js'
+import {setUpGrid, mountEdges, getGridCoordsByAbsoluteCoords, getVertexIndexByGridCoords, gridGraph, drawGrid, getRelCoordsByGridCoords} from './PathFinding/pathFinding.js'
 import { Graph } from "./shared/graph.js";
+import dijkstra from './PathFinding/dijkstra.js'
 
 const canvas = new InteractiveCanvas(document.querySelector('canvas'), 60, false);
 
@@ -17,7 +18,35 @@ let enableDiagonal = document.querySelector('input[name=diagonals-enabled]:check
 
 let submitButton = document.querySelector('#submit-button button');
 
-let getGridPixelSize = () => (window.innerWidth < window.innerHeight ? window.innerWidth : window.innerHeight) / gridCount;
+let getGridPixelSize = () => {
+    let rect = canvas.canvas.getBoundingClientRect();
+    return (rect.width < rect.height ? rect.width : rect.height) / gridCount - (40/gridCount);
+}
+
+
+/**
+ * @param {InteractiveCanvas} canvas
+ * @param {GridVertex[]} path 
+ */
+function drawPath(canvas, path) {
+    for (let i = 1; i < path.length; i++) {
+        canvas.drawInstructions.push(() => {
+            canvas.context.beginPath();
+            let c = getRelCoordsByGridCoords(path[i-1].x, path[i-1].y, getGridPixelSize(), gridCount)
+            canvas.context.moveTo(canvas.getAbsX(c.x), canvas.getAbsY(c.y));
+            let c2 = getRelCoordsByGridCoords(path[i].x, path[i].y, getGridPixelSize(), gridCount)
+            canvas.context.lineTo(canvas.getAbsX(c2.x), canvas.getAbsY(c2.y))
+            canvas.context.strokeStyle = "#fcba03";
+            canvas.context.lineWidth = 3;
+            canvas.context.stroke();
+            canvas.context.strokeStyle = "#000000";
+            canvas.context.lineWidth = 1;
+            canvas.context.closePath();
+        })
+    }
+    canvas.draw();
+}
+
 
 setUpGrid(canvas, getGridPixelSize(), gridCount, enableDiagonal);
 
@@ -42,7 +71,9 @@ enableDiagonalOptions.forEach(opt => {
 })
 
 canvas.canvas.addEventListener('click', (e) => {
-    let clickCoords = getGridCoordsByAbsoluteCoords(canvas, e.clientX, e.clientY, getGridPixelSize(), gridCount);
+    let rect = canvas.canvas.getBoundingClientRect();
+    
+    let clickCoords = getGridCoordsByAbsoluteCoords(canvas, e.clientX-rect.left, e.clientY-rect.top, getGridPixelSize(), gridCount);
     let vertexI = getVertexIndexByGridCoords(clickCoords.x, clickCoords.y, gridCount);
     if (vertexI !== null) {
         if (brushType === 'obstacle') {
@@ -111,12 +142,12 @@ submitButton.addEventListener('click', () => {
         },
         body: JSON.stringify(jsonGraph)
     })
-    // canvas.drawInstructions = [];
-    // drawGrid(canvas, getGridPixelSize(), gridCount)
+    canvas.drawInstructions = [];
+    drawGrid(canvas, getGridPixelSize(), gridCount)
 
-    // let startNode = gridGraph.vertices.find(v => v.isStartPoint);
-    // let finishNode = gridGraph.vertices.find(v => v.isFinishPoint);
+    let startNode = gridGraph.vertices.find(v => v.isStartPoint);
+    let finishNode = gridGraph.vertices.find(v => v.isFinishPoint);
 
-    // let {path, visited_frames, looking_at_vertex_frame} = dijkstra(gridGraph, startNode, finishNode);
-    // drawPath(canvas, path)
+    let {path, visited_frames, looking_at_vertex_frame} = dijkstra(gridGraph, startNode, finishNode);
+    drawPath(canvas, path)
 })

@@ -8,6 +8,7 @@ import { Graph, GraphEdge, GraphVertex } from "../shared/graph.js";
  * @param {GraphVertex} finishNode 
  */
 function dijkstra(graph, startNode, finishNode) {
+    let t = new Date().getTime();
 
     // Animation purposes
     /** @type {GraphVertex[][]} */
@@ -43,7 +44,10 @@ function dijkstra(graph, startNode, finishNode) {
             if (neighbour._summedWeight === undefined || currentNode._summedWeight + neighbourEdge.weight < neighbour._summedWeight) {
                 neighbour._summedWeight = currentNode._summedWeight + neighbourEdge.weight;
             }
-            unvisitedNodes.push(neighbour);
+
+            if (unvisitedNodes.includes(neighbour) === false) {
+                unvisitedNodes.push(neighbour);
+            }
         });
         currentNode._visited = true;
     }
@@ -66,6 +70,7 @@ function dijkstra(graph, startNode, finishNode) {
 
     
     resetDijkstraAlgorithmData(graph); // This will reset the added data into graph (To execute the algorithm multiple times)
+    console.log(`${new Date().getTime() - t}ms`)
     return {path, visited_frames, looking_at_vertex_frame};
 }
 

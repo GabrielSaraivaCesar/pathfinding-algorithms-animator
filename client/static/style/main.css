@@ -4,6 +4,10 @@
     box-sizing: border-box;
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
+:root {
+    --gray: rgba(0, 0, 0, 0.1);
+    --round-edges: 6px;
+}
 
 body {
     height: 100vh;
@@ -11,13 +15,18 @@ body {
     overflow: hidden;
 }
 canvas {
-    height: 100%;
-    width: 100%;
+    width: calc(100% - 300px - 60px);
+    height: calc(100% - 90px - 60px);
+    position: absolute;
+    top: 20px;
+    left: 20px;
     user-select: none; /* standard syntax */
     -webkit-user-select: none; /* webkit (safari, chrome) browsers */
     -moz-user-select: none; /* mozilla browsers */
     -khtml-user-select: none; /* webkit (konqueror) browsers */
     -ms-user-select: none; /* IE10+ */
+    box-shadow: 0 0px 10px 5px var(--gray);
+    border-radius: var(--round-edges);
 }
 
 .algorithm-config-panel {
@@ -27,8 +36,8 @@ canvas {
     height: calc(100% - 40px);
     width: 300px;
     background-color: #fff;
-    border-radius: 12px;
-    box-shadow: 0 0px 20px 5px rgba(72, 130, 255, 0.5);
+    border-radius: var(--round-edges);
+    box-shadow: 0 0px 10px 5px var(--gray);
     padding-top: 12px;
     overflow: auto;
 }
@@ -57,7 +66,7 @@ canvas {
 
 .algorithm-config-panel .type-selection .type-selection-buttons {
     overflow: hidden;
-    border-radius: 12px;
+    border-radius: var(--round-edges);
 }
 .algorithm-config-panel .type-selection-buttons input {
     position: absolute;
@@ -104,7 +113,7 @@ canvas {
 #submit-button {
     position: fixed;
     bottom: 20px;
-    left: calc(50% - 150px);
+    left: calc(50% - 150px + 15px);
     z-index: 10;
     width: 300px;
     display: flex;
@@ -112,6 +121,6 @@ canvas {
     padding: 24px 0;
     background-color: white;
     border-top: 1px solid rgb(209, 209, 209);
-    box-shadow: 0 -5px 10px 10px rgba(209, 209, 209, 0.5);
-    border-radius: 12px;
+    box-shadow: 0 0px 10px 5px var(--gray);
+    border-radius: var(--round-edges);
 }

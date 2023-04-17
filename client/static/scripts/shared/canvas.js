@@ -38,12 +38,11 @@ class InteractiveCanvas {
     setUpListeners() {
         window.addEventListener("resize", () => this.calculateCanvasSize());
         if (this.enableDragging) {
-            this.canvas.style.cursor = "grab";
-            window.addEventListener("mousedown", () => {this.setIsMouseDown(true)});
-            window.addEventListener("mouseup", () => {this.setIsMouseDown(false)});
-            window.addEventListener("mouseleave", () => {this.setIsMouseDown(false)});
-            window.addEventListener("mouseout", () => {this.setIsMouseDown(false)});
-            window.addEventListener("mousemove", (event) => {
+            this.canvas.addEventListener("mousedown", (e) => {this.setIsMouseDown(true, e)});
+            this.canvas.addEventListener("mouseup", (e) => {this.setIsMouseDown(false, e)});
+            this.canvas.addEventListener("mouseleave", (e) => {this.setIsMouseDown(false, e)});
+            this.canvas.addEventListener("mouseout", (e) => {this.setIsMouseDown(false, e)});
+            this.canvas.addEventListener("mousemove", (event) => {
                 if (this.isMouseDown) {
                     this.onDrag(event);
                 }
@@ -55,8 +54,9 @@ class InteractiveCanvas {
     }
 
     calculateCanvasSize() {
-        let winX = window.innerWidth;
-        let winY = window.innerHeight;
+        let rect = this.canvas.getBoundingClientRect();
+        let winX = rect.width;
+        let winY = rect.height;
         this.canvas.width = winX;
         this.canvas.height = winY;
         this.draw();
@@ -71,13 +71,17 @@ class InteractiveCanvas {
 
     /** 
      * @param {Boolean} state
+     * @param {MouseEvent} event
      */
-    setIsMouseDown(state) {
+    setIsMouseDown(state, event) {
+        if (event.button !== 1 && event.button !== 2){
+            return
+        }
         if (state !== this.isMouseDown) { // Detect change
             if (state === true) {
                 this.canvas.style.cursor = "grabbing";
             } else {
-                this.canvas.style.cursor = "grab";
+                this.canvas.style.cursor = "";
             }
         }
         this.isMouseDown = state;

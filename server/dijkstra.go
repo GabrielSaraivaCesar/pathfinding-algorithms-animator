@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"math"
 	"net/http"
+	"time"
 )
 
 type AnimationFrames struct {
@@ -13,7 +14,8 @@ type AnimationFrames struct {
 }
 
 func Dijkstra(graph *Graph, start *Vertex, finish *Vertex) []*Vertex {
-	var animationFrames AnimationFrames = AnimationFrames{CurrentVertex: []int{}, CheckingNeighbour: [][]int{}}
+	t := time.Now()
+	// var animationFrames AnimationFrames = AnimationFrames{CurrentVertex: []int{}, CheckingNeighbour: [][]int{}}
 
 	start.dijkstraSummedWeight = 0
 	var unvisitedVertices []*Vertex = []*Vertex{start}
@@ -25,8 +27,8 @@ func Dijkstra(graph *Graph, start *Vertex, finish *Vertex) []*Vertex {
 		unvisitedVertices = unvisitedVertices[1:] // Removing current vertex from slice
 
 		// Animation related
-		animationFrames.CurrentVertex = append(animationFrames.CurrentVertex, currentVertex.id)
-		animationFrames.CheckingNeighbour = append(animationFrames.CheckingNeighbour, []int{})
+		// animationFrames.CurrentVertex = append(animationFrames.CurrentVertex, currentVertex.id)
+		// animationFrames.CheckingNeighbour = append(animationFrames.CheckingNeighbour, []int{})
 
 		if currentVertex == finish {
 			break
@@ -46,7 +48,17 @@ func Dijkstra(graph *Graph, start *Vertex, finish *Vertex) []*Vertex {
 			}
 
 			// animation related
-			animationFrames.CheckingNeighbour[len(animationFrames.CheckingNeighbour)-1] = append(animationFrames.CheckingNeighbour[len(animationFrames.CheckingNeighbour)-1], neighbour.id)
+			// animationFrames.CheckingNeighbour[len(animationFrames.CheckingNeighbour)-1] = append(animationFrames.CheckingNeighbour[len(animationFrames.CheckingNeighbour)-1], neighbour.id)
+
+			// Validation
+			if neighbour.visited {
+				continue // Prevent going backwards
+			}
+
+			// If current vertex summed weight + edge weight is lower than neighbour summed weight
+			if math.IsNaN(neighbour.dijkstraSummedWeight) || neighbour.dijkstraSummedWeight > currentVertex.dijkstraSummedWeight+neighbourEdge.weight {
+				neighbour.dijkstraSummedWeight = currentVertex.dijkstraSummedWeight + neighbourEdge.weight
+			}
 
 			// Detect if is already in the list
 			var isInUnvisitedSlice bool = false
@@ -57,17 +69,9 @@ func Dijkstra(graph *Graph, start *Vertex, finish *Vertex) []*Vertex {
 				}
 			}
 
-			// Validation
-			if neighbour.visited || isInUnvisitedSlice {
-				continue // Prevent going backwards
+			if !isInUnvisitedSlice {
+				unvisitedVertices = append(unvisitedVertices, neighbour)
 			}
-
-			// If current vertex summed weight + edge weight is lower than neighbour summed weight
-			if math.IsNaN(neighbour.dijkstraSummedWeight) || neighbour.dijkstraSummedWeight > currentVertex.dijkstraSummedWeight+neighbourEdge.weight {
-				neighbour.dijkstraSummedWeight = currentVertex.dijkstraSummedWeight + neighbourEdge.weight
-			}
-
-			unvisitedVertices = append(unvisitedVertices, neighbour)
 		}
 	}
 
@@ -97,8 +101,11 @@ func Dijkstra(graph *Graph, start *Vertex, finish *Vertex) []*Vertex {
 			path = append([]*Vertex{bestNeighbour}, path...)
 		}
 
+		elapsed := time.Since(t)
+		fmt.Printf("%vms\n", elapsed.Milliseconds())
 		return path
 	}
+
 	return []*Vertex{}
 }
 
