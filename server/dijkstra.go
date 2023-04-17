@@ -24,9 +24,6 @@ func Dijkstra(graph *Graph, start *Vertex, finish *Vertex) ([]*Vertex, Animation
 	start.dijkstraSummedWeight = 0
 	var unvisitedVertices []*Vertex = []*Vertex{start}
 
-	var iterationCount int = 0
-	var worstCase float64 = float64(len(graph.edges)) + (float64(len(graph.vertices)) * math.Log(float64(len(graph.vertices))))
-
 	// Marking summed weights
 	for len(unvisitedVertices) > 0 {
 		var currentVertex *Vertex = unvisitedVertices[0]
@@ -54,8 +51,6 @@ func Dijkstra(graph *Graph, start *Vertex, finish *Vertex) ([]*Vertex, Animation
 				continue // Prevent loops
 			}
 
-			iterationCount++
-
 			// animation related
 			animationFrames.CheckingNeighbour[len(animationFrames.CheckingNeighbour)-1] = append(animationFrames.CheckingNeighbour[len(animationFrames.CheckingNeighbour)-1], neighbour.id)
 
@@ -77,9 +72,11 @@ func Dijkstra(graph *Graph, start *Vertex, finish *Vertex) ([]*Vertex, Animation
 		}
 	}
 
+	var path []*Vertex = []*Vertex{}
+
 	// If the algorithm was able to get to the finish point
 	if math.IsNaN(finish.dijkstraSummedWeight) == false {
-		var path []*Vertex = []*Vertex{finish}
+		path = []*Vertex{finish}
 
 		for path[0] != start {
 			var bestNeighbour *Vertex = nil
@@ -103,16 +100,15 @@ func Dijkstra(graph *Graph, start *Vertex, finish *Vertex) ([]*Vertex, Animation
 			path = append([]*Vertex{bestNeighbour}, path...)
 		}
 
-		elapsed := time.Since(t)
-		fmt.Printf("%vms - iterations: %v \n - Worst case: %v", elapsed.Milliseconds(), iterationCount, worstCase)
-		return path, animationFrames
 	}
 
-	return []*Vertex{}, animationFrames
+	elapsed := time.Since(t)
+	fmt.Printf("Dijkstra executed in: %v", elapsed)
+	return path, animationFrames
 }
 
 func AjaxDijkstra(writer http.ResponseWriter, request *http.Request) {
-	fmt.Println("Executing Dijkstra's algorithm...")
+	fmt.Println("\nExecuting Dijkstra's algorithm...")
 	var err error
 	var jsonGraph JsonGraph
 	err = json.NewDecoder(request.Body).Decode(&jsonGraph)
