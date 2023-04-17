@@ -11,7 +11,7 @@ The project is developed using HTML, CSS, JavaScript, and Golang.
     <img src="readme_files/go.svg" width=100>
 </div>
 <br>
-Golang is used to execute the algorithms on the server side, so JavaScript is not responsible for the expensive work. This is crucial because Golang's performance is several times better than JavaScript, and relying on the client's machine to execute algorithms can lead to performance issues.
+Golang is used to execute the algorithms on the server side, so JavaScript is not responsible for the expensive work. This is crucial because Golang's performance is several times better than JavaScript, and relying on the client's machine to execute algorithms can lead to severe performance issues.
 
 
 ## The Grid
