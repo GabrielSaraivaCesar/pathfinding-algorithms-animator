@@ -113,7 +113,7 @@ canvas {
 #submit-button {
     position: fixed;
     bottom: 20px;
-    left: calc(50% - 150px + 15px);
+    right: calc(300px + 40px);
     z-index: 10;
     width: 300px;
     display: flex;
