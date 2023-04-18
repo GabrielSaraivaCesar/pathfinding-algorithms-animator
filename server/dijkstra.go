@@ -110,29 +110,12 @@ func Dijkstra(graph *Graph, start *Vertex, finish *Vertex) ([]*Vertex, Animation
 func AjaxDijkstra(writer http.ResponseWriter, request *http.Request) {
 	fmt.Println("\nExecuting Dijkstra's algorithm...")
 	var err error
-	var jsonGraph JsonGraph
-	err = json.NewDecoder(request.Body).Decode(&jsonGraph)
-	if err != nil {
-		http.Error(writer, err.Error(), http.StatusBadRequest)
-		return
-	}
-
-	var graph Graph
-	err = graph.LoadFromJsonGraph(jsonGraph)
-	if err != nil {
-		http.Error(writer, err.Error(), http.StatusBadRequest)
-		return
-	}
-
+	var graph *Graph
 	var startVertex *Vertex
-	err, startVertex = graph.findVertexById(jsonGraph.Start)
-	if err != nil {
-		http.Error(writer, err.Error(), http.StatusBadRequest)
-		return
-	}
-
 	var finishVertex *Vertex
-	err, finishVertex = graph.findVertexById(jsonGraph.Finish)
+
+	err, graph, startVertex, finishVertex = getGraphFromJsonBody(request)
+
 	if err != nil {
 		http.Error(writer, err.Error(), http.StatusBadRequest)
 		return
@@ -140,9 +123,9 @@ func AjaxDijkstra(writer http.ResponseWriter, request *http.Request) {
 
 	var path []*Vertex
 	var animationFrames AnimationFrames
-	path, animationFrames = Dijkstra(&graph, startVertex, finishVertex)
+	path, animationFrames = Dijkstra(graph, startVertex, finishVertex)
 
-	var indexesPath []int = graphPathToIndexesPath(&graph, path)
+	var indexesPath []int = graphPathToIndexesPath(graph, path)
 
 	var responsePackage AjaxDijkstraResponse = AjaxDijkstraResponse{AnimationFramesObj: animationFrames, Path: indexesPath}
 
