@@ -73,6 +73,7 @@ func Dijkstra(graph *Graph, start *Vertex, finish *Vertex) ([]*Vertex, Animation
 	}
 
 	var path []*Vertex = []*Vertex{}
+	fmt.Println("Mounting path...")
 
 	// If the algorithm was able to get to the finish point
 	if math.IsNaN(finish.dijkstraSummedWeight) == false {
@@ -92,6 +93,10 @@ func Dijkstra(graph *Graph, start *Vertex, finish *Vertex) ([]*Vertex, Animation
 					neighbour = neighbourEdge.vertices[1]
 				}
 
+				if math.IsNaN(neighbour.dijkstraSummedWeight) { // Only analysed neighbours can join
+					continue
+				}
+
 				if bestNeighbour == nil || neighbour.dijkstraSummedWeight < bestNeighbour.dijkstraSummedWeight {
 					bestNeighbour = neighbour
 				}
@@ -103,7 +108,7 @@ func Dijkstra(graph *Graph, start *Vertex, finish *Vertex) ([]*Vertex, Animation
 	}
 
 	elapsed := time.Since(t)
-	fmt.Printf("Dijkstra executed in: %v", elapsed)
+	fmt.Printf("Dijkstra executed in: %v\n", elapsed)
 	return path, animationFrames
 }
 
