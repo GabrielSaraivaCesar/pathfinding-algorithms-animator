@@ -18,7 +18,7 @@ type AjaxDijkstraResponse struct {
 }
 
 func Dijkstra(graph *Graph, start *Vertex, finish *Vertex) ([]*Vertex, AnimationFrames) {
-	t := time.Now()
+	startTime := time.Now()
 	var animationFrames AnimationFrames = AnimationFrames{CurrentVertex: []int{}, CheckingNeighbour: [][]int{}}
 
 	start.dijkstraSummedWeight = 0
@@ -107,7 +107,7 @@ func Dijkstra(graph *Graph, start *Vertex, finish *Vertex) ([]*Vertex, Animation
 
 	}
 
-	elapsed := time.Since(t)
+	elapsed := time.Since(startTime)
 	fmt.Printf("Dijkstra executed in: %v\n", elapsed)
 	return path, animationFrames
 }
