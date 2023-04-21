@@ -21,13 +21,13 @@ func getGraphFromJsonBody(request *http.Request) (error, *Graph, *Vertex, *Verte
 	}
 
 	var startVertex *Vertex
-	err, startVertex = graph.findVertexById(jsonGraph.Start)
+	startVertex, err = graph.findVertexById(jsonGraph.Start)
 	if err != nil {
 		return err, nil, nil, nil
 	}
 
 	var finishVertex *Vertex
-	err, finishVertex = graph.findVertexById(jsonGraph.Finish)
+	finishVertex, err = graph.findVertexById(jsonGraph.Finish)
 	if err != nil {
 		return err, nil, nil, nil
 	}

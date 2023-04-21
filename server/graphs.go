@@ -1,7 +1,7 @@
 package server
 
 import (
-	"fmt"
+	"errors"
 	"math"
 )
 
@@ -38,7 +38,7 @@ type Graph struct {
 func (graph *Graph) AddVertex(vertexId int) error {
 	for i := 0; i < len(graph.vertices); i++ {
 		if graph.vertices[i].id == vertexId {
-			return fmt.Errorf("Vertex %d already exists", vertexId)
+			return errors.New("Vertex already exists")
 		}
 	}
 	newVertex := &Vertex{id: vertexId, edges: []*Edge{}, dijkstraSummedWeight: float64(math.NaN()), visited: false}
@@ -46,7 +46,7 @@ func (graph *Graph) AddVertex(vertexId int) error {
 	return nil
 }
 
-func (graph *Graph) findVertexById(vertexId int) (error, *Vertex) {
+func (graph *Graph) findVertexById(vertexId int) (*Vertex, error) {
 	var vertex *Vertex = nil
 
 	for i := 0; i < len(graph.vertices); i++ {
@@ -56,10 +56,10 @@ func (graph *Graph) findVertexById(vertexId int) (error, *Vertex) {
 	}
 
 	if vertex == nil {
-		return fmt.Errorf("Vertex %d doesn't exist", vertexId), nil
+		return nil, errors.New("Vertex doesn't exist")
 	}
 
-	return nil, vertex
+	return vertex, nil
 }
 
 func (graph *Graph) AddEdge(vertexA *Vertex, vertexB *Vertex, weight float64) error {
@@ -75,11 +75,11 @@ func (graph *Graph) AddEdge(vertexA *Vertex, vertexB *Vertex, weight float64) er
 
 func (graph *Graph) AddEdgeByVertexIds(vertexAId int, vertexBId int, weight float64) error {
 
-	errA, vertexA := graph.findVertexById(vertexAId)
+	vertexA, errA := graph.findVertexById(vertexAId)
 	if errA != nil {
 		return errA
 	}
-	errB, vertexB := graph.findVertexById(vertexBId)
+	vertexB, errB := graph.findVertexById(vertexBId)
 	if errB != nil {
 		return errB
 	}
@@ -102,7 +102,7 @@ func (graph *Graph) LoadFromJsonGraph(jsonGraph JsonGraph) error {
 	for eIndex := 0; eIndex < len(jsonGraph.Edges); eIndex++ {
 		edge := jsonGraph.Edges[eIndex]
 		if len(edge.Vertices) != 2 {
-			return fmt.Errorf("Invalid edge with %d items", len(edge.Vertices))
+			return errors.New("Invalid edge with length  with more than 2 items")
 		}
 		err := graph.AddEdgeByVertexIds(edge.Vertices[0], edge.Vertices[1], edge.Weight)
 		if err != nil {
