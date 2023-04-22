@@ -39,5 +39,10 @@ Note: Obstacles do not create any edges to other vertices.
 ## Demos
 Dijkstra:
 
-<img src="readme_files/pathfinding-demo2.gif">
+<img src="readme_files/pathfinding-demo-dijkstra.gif">
+<br>
+<br>
+A*:
+
+<img src="readme_files/pathfinding-demo-a-star.gif">
 
