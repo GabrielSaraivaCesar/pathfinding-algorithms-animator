@@ -68,6 +68,8 @@ func (heap *Heap) siftUp() {
 				priority: heap._data[index].priority,
 				value:    heap._data[index].value,
 			}
+			// var parent *HeapItem = &heap._data[parentIndex]
+			// var item *HeapItem = &heap._data[index]
 
 			heap._data[parentIndex] = lowerCopy
 			heap._data[index] = parentCopy

@@ -27,7 +27,7 @@ class InteractiveCanvas {
      * @param {Boolean} enableDragging
      */
     constructor(canvasElement, fps=60, enableDragging=true) {
-        this.enableDragging = true;
+        this.enableDragging = enableDragging;
         this.canvas = canvasElement;
         this.fps=fps;
         this.context = this.canvas.getContext('2d');

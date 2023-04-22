@@ -103,6 +103,12 @@ canvas {
     background-color: rgb(73, 121, 255);
     color: #fff;
 }
+.algorithm-config-panel .type-selection-buttons input:not(:checked).partially-checked ~ div {
+    background-color: rgba(0, 68, 255, 0.555);
+    color: #fff;
+}
+
+
 
 #action-buttons button {
     background-color: rgb(73, 121, 255);
@@ -120,15 +126,22 @@ canvas {
     opacity: 0.3;
     cursor: default;
 }
-#action-buttons button#clear-button {
+#action-buttons button#clear-path-button {
+    background-color: rgb(235, 144, 41);
+    margin-left: 24px;
+}
+#action-buttons button#clear-path-button:hover {
+    background-color: rgb(170, 105, 30);
+
+}
+#action-buttons button#clear-all-button {
     background-color: rgb(235, 41, 41);
     margin-left: 24px;
 }
-#action-buttons button#clear-button:hover {
+#action-buttons button#clear-all-button:hover {
     background-color: rgb(185, 58, 58);
 
 }
-
 
 #action-buttons {
     position: fixed;

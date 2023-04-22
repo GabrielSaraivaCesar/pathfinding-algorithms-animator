@@ -61,9 +61,9 @@ func AStar(graph *Graph, start *Vertex, finish *Vertex) ([]*Vertex, AnimationFra
 
 	}
 
-	var path []*Vertex = graph.getPath(start, finish)
 	elapsed := time.Since(startTime)
 	fmt.Printf("A* executed in: %v\n", elapsed)
+	var path []*Vertex = graph.getPath(start, finish)
 	return path, animationFrames
 }
 

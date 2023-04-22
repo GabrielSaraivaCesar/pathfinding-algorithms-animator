@@ -6,15 +6,18 @@ import { DRAW_TAGS } from "./shared/constants.js";
 
 const canvas = new InteractiveCanvas(document.querySelector('canvas'), 60, false);
 let isClickingCanvas = false;
+let canvasButtonClicked = null;
 
 
 let gridCountInput = document.querySelector("input[name=gridcount]");
 let gridCount = gridCountInput.value;
 let gridCountDisplay = document.querySelector('#gridcount-display');
-gridCountDisplay.textContent = gridCount;
+const setGridCountDisplay = (gridCount) => gridCountDisplay.textContent = `${gridCount}x${gridCount}`;
+setGridCountDisplay(gridCount);
 
 let brushTypeOptions = document.querySelectorAll('input[name=brush-type]');
 let brushType = document.querySelector('input[name=brush-type]:checked').value;
+let eraserButton = document.querySelector('input[name=brush-type][value=eraser]');
 
 let algorithmTypeOptions = document.querySelectorAll('input[name=algorithm-choice]');
 let algorithmType = document.querySelector('input[name=algorithm-choice]:checked').value;
@@ -23,8 +26,10 @@ let enableDiagonalOptions = document.querySelectorAll('input[name=diagonals-enab
 let enableDiagonal = document.querySelector('input[name=diagonals-enabled]:checked').value === "yes";
 
 let submitButton = document.querySelector('#action-buttons button#submit-button');
-let clearButton = document.querySelector('#action-buttons button#clear-button');
-clearButton.setAttribute('disabled', true);
+let clearPathButton = document.querySelector('#action-buttons button#clear-path-button');
+clearPathButton.setAttribute('disabled', true);
+let clearAllButton = document.querySelector('#action-buttons button#clear-all-button');
+clearAllButton.setAttribute('disabled', true);
 
 let fpsInput = document.querySelector('input[name=fps]');
 
@@ -192,7 +197,7 @@ setUpGrid(canvas, getGridPixelSize(), gridCount, enableDiagonal);
 
 gridCountInput.addEventListener('input', (e) => {
     gridCount = e.target.value;
-    gridCountDisplay.textContent = gridCount;
+    setGridCountDisplay(gridCount);
     setUpGrid(canvas, getGridPixelSize(), gridCount, enableDiagonal);
 })
 
@@ -211,15 +216,19 @@ algorithmTypeOptions.forEach(opt => {
 enableDiagonalOptions.forEach(opt => {
     opt.addEventListener('change', (e) => {
         enableDiagonal = e.target.value === "yes";
-        
-        mountEdges(gridCount, enableDiagonal);
     })
 })
 
 function clickVertexHandler(vertex) {
     let originalStatus = false;
     let currentStatus = false;
-    if (brushType === 'obstacle') {
+    if (brushType === 'eraser' || canvasButtonClicked === 2) {
+        currentStatus = false;
+        originalStatus = vertex.isFinishPoint || vertex.isStartPoint || vertex.isObstacle;
+        vertex.isFinishPoint = false;
+        vertex.isStartPoint = false;
+        vertex.isObstacle = false;
+    } else if (brushType === 'obstacle') {
         originalStatus = vertex.isObstacle;
         currentStatus = true;
         vertex.isObstacle = true;
@@ -249,32 +258,30 @@ function clickVertexHandler(vertex) {
         vertex.isFinishPoint = true;
         vertex.isStartPoint = false;
         vertex.isObstacle = false;
-    }  else if (brushType === 'eraser') {
-        currentStatus = false;
-        originalStatus = vertex.isFinishPoint || vertex.isStartPoint || vertex.isObstacle;
-        vertex.isFinishPoint = false;
-        vertex.isStartPoint = false;
-        vertex.isObstacle = false;
     }
 
     if (originalStatus != currentStatus) {
         vertex._statusLastChange = new Date().getTime();
     }
-    mountEdges(gridCount, enableDiagonal);
 }
 
-
-canvas.canvas.addEventListener('mouseup', e => {
+function disableDragging(e) {
     isClickingCanvas = false;
+    eraserButton.classList.remove("partially-checked");
+}
+canvas.canvas.addEventListener('mouseup', e => {
+    disableDragging(e)
 });
 canvas.canvas.addEventListener('mouseleave', e => {
-    isClickingCanvas = false;
+    disableDragging(e)
 });
 canvas.canvas.addEventListener('mouseout', e => {
-    isClickingCanvas = false;
+    disableDragging(e)
 });
 canvas.canvas.addEventListener('mousedown', e => {
-    if (e.button === 0) {
+    if (e.button === 0 || e.button === 2) {
+
+        clearAllButton.removeAttribute("disabled")
         let rect = canvas.canvas.getBoundingClientRect();
         let clickCoords = getGridCoordsByAbsoluteCoords(canvas, e.clientX-rect.left, e.clientY-rect.top, getGridPixelSize(), gridCount);
         let vertexI = getVertexIndexByGridCoords(clickCoords.x, clickCoords.y, gridCount);
@@ -283,9 +290,15 @@ canvas.canvas.addEventListener('mousedown', e => {
         }
 
         isClickingCanvas = true;
+        canvasButtonClicked = e.button;
+
+        if (e.button === 2) {
+            eraserButton.classList.add("partially-checked");
+        }
+
         let vertex = gridGraph.vertices[vertexI];
         clickVertexHandler(vertex);
-    }
+    } 
 })
 canvas.canvas.addEventListener('mousemove', (e) => {
     if (isClickingCanvas === false) {
@@ -301,9 +314,18 @@ canvas.canvas.addEventListener('mousemove', (e) => {
     }
 });
 
-clearButton.addEventListener('click', () => {
-    clearButton.setAttribute("disabled", true)
+clearPathButton.addEventListener('click', () => {
+    clearPathButton.setAttribute("disabled", true)
     canvas.clearDrawInstructions(DRAW_TAGS.PATH_ANIMATION);
+})
+clearAllButton.addEventListener('click', () => {
+    clearAllButton.setAttribute("disabled", true)
+    canvas.clearDrawInstructions(DRAW_TAGS.PATH_ANIMATION);
+    gridGraph.vertices.forEach(vertex => {
+        vertex.isObstacle = false;
+        vertex.isStartPoint = false;
+        vertex.isFinishPoint = false;
+    })
 })
 
 window.addEventListener('resize', () => {
@@ -318,6 +340,7 @@ fpsInput.addEventListener("input", (e) => {
 })
 
 submitButton.addEventListener('click', () => {
+    mountEdges(gridCount, enableDiagonal);
     let jsonGraph = graphToJsonGraph(gridGraph);
     fetch("/"+algorithmType, {
         method: "POST",
@@ -330,7 +353,7 @@ submitButton.addEventListener('click', () => {
     .then(response => {
         response.json()
         .then(jsonResponse => {
-            clearButton.removeAttribute("disabled")
+            clearPathButton.removeAttribute("disabled")
             canvas.clearDrawInstructions(DRAW_TAGS.PATH_ANIMATION);
             currentAnimationFrame = 0;
             jsonResponse.Path.reverse()
