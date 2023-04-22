@@ -8,20 +8,11 @@ import (
 	"time"
 )
 
-type AnimationFrames struct {
-	CurrentVertex     []int
-	CheckingNeighbour [][]int
-}
-type AjaxDijkstraResponse struct {
-	AnimationFramesObj AnimationFrames
-	Path               []int
-}
-
 func Dijkstra(graph *Graph, start *Vertex, finish *Vertex) ([]*Vertex, AnimationFrames) {
 	startTime := time.Now()
 	var animationFrames AnimationFrames = AnimationFrames{CurrentVertex: []int{}, CheckingNeighbour: [][]int{}}
 
-	start.dijkstraSummedWeight = 0
+	start.summedWeight = 0
 	var unvisitedVertices []*Vertex = []*Vertex{start}
 
 	// Marking summed weights
@@ -60,8 +51,8 @@ func Dijkstra(graph *Graph, start *Vertex, finish *Vertex) ([]*Vertex, Animation
 			}
 
 			// If current vertex summed weight + edge weight is lower than neighbour summed weight
-			if math.IsNaN(neighbour.dijkstraSummedWeight) || neighbour.dijkstraSummedWeight > currentVertex.dijkstraSummedWeight+neighbourEdge.weight {
-				neighbour.dijkstraSummedWeight = currentVertex.dijkstraSummedWeight + neighbourEdge.weight
+			if math.IsNaN(neighbour.summedWeight) || neighbour.summedWeight > currentVertex.summedWeight+neighbourEdge.weight {
+				neighbour.summedWeight = currentVertex.summedWeight + neighbourEdge.weight
 			}
 
 			// Detect if is already in the list
@@ -76,7 +67,7 @@ func Dijkstra(graph *Graph, start *Vertex, finish *Vertex) ([]*Vertex, Animation
 	fmt.Println("Mounting path...")
 
 	// If the algorithm was able to get to the finish point
-	if math.IsNaN(finish.dijkstraSummedWeight) == false {
+	if math.IsNaN(finish.summedWeight) == false {
 		path = []*Vertex{finish}
 
 		for path[0] != start {
@@ -93,11 +84,11 @@ func Dijkstra(graph *Graph, start *Vertex, finish *Vertex) ([]*Vertex, Animation
 					neighbour = neighbourEdge.vertices[1]
 				}
 
-				if math.IsNaN(neighbour.dijkstraSummedWeight) { // Only analysed neighbours can join
+				if math.IsNaN(neighbour.summedWeight) { // Only analysed neighbours can join
 					continue
 				}
 
-				if bestNeighbour == nil || neighbour.dijkstraSummedWeight < bestNeighbour.dijkstraSummedWeight {
+				if bestNeighbour == nil || neighbour.summedWeight < bestNeighbour.summedWeight {
 					bestNeighbour = neighbour
 				}
 			}
@@ -132,7 +123,7 @@ func AjaxDijkstra(writer http.ResponseWriter, request *http.Request) {
 
 	var indexesPath []int = graphPathToIndexesPath(graph, path)
 
-	var responsePackage AjaxDijkstraResponse = AjaxDijkstraResponse{AnimationFramesObj: animationFrames, Path: indexesPath}
+	var responsePackage AnimationResponse = AnimationResponse{AnimationFramesObj: animationFrames, Path: indexesPath}
 
 	writer.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(writer).Encode(responsePackage)

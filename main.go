@@ -9,7 +9,7 @@ import (
 	"strconv"
 )
 
-const _PORT int = 8080
+const _PORT int = 3001
 
 func rootHandler(writer http.ResponseWriter, request *http.Request) {
 	type RootPageContext struct {
@@ -27,5 +27,6 @@ func main() {
 	http.Handle("/client/static/", http.FileServer(http.Dir("./")))
 	http.HandleFunc("/", rootHandler)
 	http.HandleFunc("/dijkstra", server.AjaxDijkstra)
+	http.HandleFunc("/a-star", server.AjaxAStar)
 	log.Fatal(http.ListenAndServe(":"+strconv.Itoa(_PORT), nil))
 }

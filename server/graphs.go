@@ -14,6 +14,7 @@ type JsonGraph struct {
 	Edges    []JsonGraphEdge
 	Start    int
 	Finish   int
+	Coords   []Coords
 }
 
 type Edge struct {
@@ -26,22 +27,29 @@ type Vertex struct {
 	id    int
 	edges []*Edge
 
-	dijkstraSummedWeight float64
-	isInUnvisitedSlice   bool
-	visited              bool
+	summedWeight       float64
+	isInUnvisitedSlice bool
+	visited            bool
+	coords             Coords
 }
 type Graph struct {
 	vertices []*Vertex
 	edges    []*Edge
 }
 
-func (graph *Graph) AddVertex(vertexId int) error {
+func (graph *Graph) AddVertex(vertexId int, coords Coords) error {
 	for i := 0; i < len(graph.vertices); i++ {
 		if graph.vertices[i].id == vertexId {
 			return errors.New("Vertex already exists")
 		}
 	}
-	newVertex := &Vertex{id: vertexId, edges: []*Edge{}, dijkstraSummedWeight: float64(math.NaN()), visited: false}
+	newVertex := &Vertex{
+		id:           vertexId,
+		edges:        []*Edge{},
+		summedWeight: float64(math.NaN()),
+		visited:      false,
+		coords:       Coords{X: coords.X, Y: coords.Y},
+	}
 	graph.vertices = append(graph.vertices, newVertex)
 	return nil
 }
@@ -94,7 +102,7 @@ func (graph *Graph) AddEdgeByVertexIds(vertexAId int, vertexBId int, weight floa
 
 func (graph *Graph) LoadFromJsonGraph(jsonGraph JsonGraph) error {
 	for vIndex := 0; vIndex < len(jsonGraph.Vertices); vIndex++ {
-		err := graph.AddVertex(jsonGraph.Vertices[vIndex])
+		err := graph.AddVertex(jsonGraph.Vertices[vIndex], jsonGraph.Coords[vIndex])
 		if err != nil {
 			return err
 		}
@@ -128,4 +136,46 @@ func graphPathToIndexesPath(graph *Graph, path []*Vertex) []int {
 	}
 
 	return indexPath
+}
+
+func (edge Edge) getNeighbour(vertex *Vertex) *Vertex {
+	if edge.vertices[0] != vertex {
+		return edge.vertices[0]
+	} else {
+		return edge.vertices[1]
+	}
+}
+
+func (graph Graph) getPath(start *Vertex, finish *Vertex) []*Vertex {
+	var path []*Vertex = []*Vertex{finish}
+
+	if math.IsNaN(finish.summedWeight) {
+		return []*Vertex{}
+	}
+	for path[0] != start {
+		var bestNeighbour *Vertex = nil
+
+		for neighbourEdgeIndex := 0; neighbourEdgeIndex < len(path[0].edges); neighbourEdgeIndex++ {
+			var neighbour *Vertex = nil
+			var neighbourEdge *Edge = path[0].edges[neighbourEdgeIndex]
+
+			// Get neighbour
+			if neighbourEdge.vertices[0] != path[0] {
+				neighbour = neighbourEdge.vertices[0]
+			} else {
+				neighbour = neighbourEdge.vertices[1]
+			}
+
+			if math.IsNaN(neighbour.summedWeight) || !neighbour.visited { // Only analysed neighbours can join
+				continue
+			}
+
+			if bestNeighbour == nil || neighbour.summedWeight < bestNeighbour.summedWeight {
+				bestNeighbour = neighbour
+			}
+		}
+
+		path = append([]*Vertex{bestNeighbour}, path...)
+	}
+	return path
 }

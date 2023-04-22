@@ -16,6 +16,9 @@ gridCountDisplay.textContent = gridCount;
 let brushTypeOptions = document.querySelectorAll('input[name=brush-type]');
 let brushType = document.querySelector('input[name=brush-type]:checked').value;
 
+let algorithmTypeOptions = document.querySelectorAll('input[name=algorithm-choice]');
+let algorithmType = document.querySelector('input[name=algorithm-choice]:checked').value;
+
 let enableDiagonalOptions = document.querySelectorAll('input[name=diagonals-enabled]');
 let enableDiagonal = document.querySelector('input[name=diagonals-enabled]:checked').value === "yes";
 
@@ -163,9 +166,14 @@ function graphToJsonGraph(graph) {
         Edges: [],
         Start: graph.vertices.findIndex((v) => v.isStartPoint),
         Finish: graph.vertices.findIndex((v) => v.isFinishPoint),
+        Coords: []
     }
-    graph.vertices.forEach((_, i) => {
+    graph.vertices.forEach((vertex, i) => {
         jsonGraph.Vertices.push(i);
+        jsonGraph.Coords.push({
+            x: vertex.x,
+            y: vertex.y
+        })
     });
     graph.edges.forEach((edge) => {
         let v1VertexIndex = graph.vertices.findIndex((v) => v === edge.v1);
@@ -191,6 +199,12 @@ gridCountInput.addEventListener('input', (e) => {
 brushTypeOptions.forEach(opt => {
     opt.addEventListener('change', (e) => {
         brushType = e.target.value;
+    })
+})
+
+algorithmTypeOptions.forEach(opt => {
+    opt.addEventListener('change', (e) => {
+        algorithmType = e.target.value;
     })
 })
 
@@ -287,9 +301,25 @@ canvas.canvas.addEventListener('mousemove', (e) => {
     }
 });
 
+clearButton.addEventListener('click', () => {
+    clearButton.setAttribute("disabled", true)
+    canvas.clearDrawInstructions(DRAW_TAGS.PATH_ANIMATION);
+})
+
+window.addEventListener('resize', () => {
+    canvas.clearDrawInstructions(DRAW_TAGS.GRID)
+    drawGrid(canvas, getGridPixelSize(), gridCount)
+    reorderInstructions(canvas);
+})
+
+fpsInput.addEventListener("input", (e) => {
+    framesPerSecond = e.target.value;
+    createAnimationInterval();
+})
+
 submitButton.addEventListener('click', () => {
     let jsonGraph = graphToJsonGraph(gridGraph);
-    fetch("/dijkstra", {
+    fetch("/"+algorithmType, {
         method: "POST",
         mode: "cors",
         headers: {
@@ -312,19 +342,4 @@ submitButton.addEventListener('click', () => {
     .catch(err => {
         console.error(err);
     })
-})
-clearButton.addEventListener('click', () => {
-    clearButton.setAttribute("disabled", true)
-    canvas.clearDrawInstructions(DRAW_TAGS.PATH_ANIMATION);
-})
-
-window.addEventListener('resize', () => {
-    canvas.clearDrawInstructions(DRAW_TAGS.GRID)
-    drawGrid(canvas, getGridPixelSize(), gridCount)
-    reorderInstructions(canvas);
-})
-
-fpsInput.addEventListener("input", (e) => {
-    framesPerSecond = e.target.value;
-    createAnimationInterval();
 })

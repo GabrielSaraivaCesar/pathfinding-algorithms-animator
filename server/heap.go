@@ -6,48 +6,83 @@ import (
 )
 
 type HeapItem struct {
-	priority int
+	priority float64
 	value    any
 }
 type Heap struct {
 	_data []HeapItem
 }
 
+func (heap *Heap) len() int {
+	return len(heap._data)
+}
+
 func (heap *Heap) push(item HeapItem) error {
 	heap._data = append(heap._data, item)
-	heap.siftUp(&heap._data[len(heap._data)-1])
+	heap.siftUp()
+	// heap.hackSiftUp()
 	return nil
 }
 
-func (heap *Heap) siftUp(item *HeapItem) error {
-	var itemCopy HeapItem = *item
-	index, err := heap.findIndex(item)
-	if err != nil {
-		return err
+func (heap *Heap) hackSiftUp() error {
+	if heap.len() <= 1 {
+		return nil
 	}
 
-	for i := index; i > 0; i-- {
-		parent, err := heap.getParent(i)
-		if err != nil {
-			return err
-		}
-		parentIndex, err := heap.findIndex(parent)
-		if err != nil {
-			return err
-		}
+	var rootCopy HeapItem = HeapItem{
+		priority: heap._data[0].priority,
+		value:    heap._data[0].value,
+	}
 
-		if parent.priority > itemCopy.priority {
-			heap._data[i] = *parent
-			heap._data[parentIndex] = itemCopy
-		} else {
-			break
+	var lowerIndex int = 0
+
+	for i := 1; i < heap.len(); i++ {
+		if heap._data[i].priority < heap._data[lowerIndex].priority {
+			lowerIndex = i
 		}
 	}
+
+	var lowerCopy HeapItem = HeapItem{
+		priority: heap._data[lowerIndex].priority,
+		value:    heap._data[lowerIndex].value,
+	}
+
+	heap._data[0] = lowerCopy
+	heap._data[lowerIndex] = rootCopy
 
 	return nil
+}
+
+func (heap *Heap) siftUp() {
+
+	for index := heap.len() - 1; index > 0; index = heap.getParentIndex(index) {
+
+		parentIndex := heap.getParentIndex(index)
+
+		if heap._data[parentIndex].priority > heap._data[index].priority {
+			var parentCopy HeapItem = HeapItem{
+				priority: heap._data[parentIndex].priority,
+				value:    heap._data[parentIndex].value,
+			}
+			var lowerCopy HeapItem = HeapItem{
+				priority: heap._data[index].priority,
+				value:    heap._data[index].value,
+			}
+
+			heap._data[parentIndex] = lowerCopy
+			heap._data[index] = parentCopy
+		}
+	}
 }
 func (heap *Heap) siftDown(item *HeapItem) error {
-	var itemCopy HeapItem = *item
+	if len(heap._data) <= 1 {
+		return nil
+	}
+
+	var itemCopy HeapItem = HeapItem{
+		priority: item.priority,
+		value:    item.value,
+	}
 	index, err := heap.findIndex(item)
 	if err != nil {
 		return err
@@ -73,7 +108,10 @@ func (heap *Heap) siftDown(item *HeapItem) error {
 	}
 
 	if substituteByIndex != -1 {
-		var substitute HeapItem = heap._data[substituteByIndex]
+		var substitute HeapItem = HeapItem{
+			priority: heap._data[substituteByIndex].priority,
+			value:    heap._data[substituteByIndex].value,
+		}
 		heap._data[substituteByIndex] = itemCopy
 		heap._data[index] = substitute
 		return heap.siftDown(&heap._data[substituteByIndex])
@@ -83,12 +121,21 @@ func (heap *Heap) siftDown(item *HeapItem) error {
 }
 
 func (heap *Heap) popRoot() error {
-	heap._data[0] = heap._data[len(heap._data)-1]
+	heap._data[0] = HeapItem{
+		priority: heap._data[len(heap._data)-1].priority,
+		value:    heap._data[len(heap._data)-1].value,
+	}
 	heap._data = heap._data[:len(heap._data)-1]
-	return heap.siftDown(&heap._data[0])
+
+	if len(heap._data) > 0 {
+		err := heap.siftDown(&heap._data[0])
+		// fmt.Println(heap)
+		return err
+	}
+	return nil
 }
 
-func (heap *Heap) getByPriority(priority int) (*HeapItem, error) {
+func (heap *Heap) getByPriority(priority float64) (*HeapItem, error) {
 	var item *HeapItem = nil
 
 	for i := 0; i < len(heap._data); i++ {
@@ -103,16 +150,21 @@ func (heap *Heap) getByPriority(priority int) (*HeapItem, error) {
 
 	return item, nil
 }
+func (heap *Heap) getParentIndex(index int) int {
+	var parentIndex float64 = (float64(index) - 1.0) / 2.0
+	parentIndex = math.Floor(parentIndex)
+
+	return int(parentIndex)
+}
 
 func (heap *Heap) getParent(index int) (*HeapItem, error) {
-	var parentId float64 = (float64(index) - 1.0) / 2.0
-	parentId = math.Floor(parentId)
+	var parentIndex int = heap.getParentIndex(index)
 
-	if parentId < 0 {
+	if parentIndex < 0 {
 		return nil, fmt.Errorf("Parent not found")
 	}
 
-	return &heap._data[int(parentId)], nil
+	return &heap._data[parentIndex], nil
 }
 
 func (heap *Heap) getLeftChild(index int) (*HeapItem, error) {
@@ -145,4 +197,8 @@ func (heap *Heap) findIndex(item *HeapItem) (int, error) {
 	}
 
 	return index, nil
+}
+
+func (heap *Heap) getByIndex(index int) HeapItem {
+	return heap._data[index]
 }

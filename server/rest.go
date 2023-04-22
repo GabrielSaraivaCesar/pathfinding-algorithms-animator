@@ -5,6 +5,15 @@ import (
 	"net/http"
 )
 
+type AnimationFrames struct {
+	CurrentVertex     []int
+	CheckingNeighbour [][]int
+}
+type AnimationResponse struct {
+	AnimationFramesObj AnimationFrames
+	Path               []int
+}
+
 func getGraphFromJsonBody(request *http.Request) (error, *Graph, *Vertex, *Vertex) {
 	var jsonGraph JsonGraph
 	var err error
