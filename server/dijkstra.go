@@ -30,16 +30,12 @@ func Dijkstra(graph *Graph, start *Vertex, finish *Vertex) ([]*Vertex, Animation
 		}
 
 		for neighbourEdgeIndex := 0; neighbourEdgeIndex < len(currentVertex.edges); neighbourEdgeIndex++ {
-			var neighbour *Vertex = nil
 			var neighbourEdge *Edge = currentVertex.edges[neighbourEdgeIndex]
+			var neighbour *Vertex = neighbourEdge.getNeighbour(currentVertex)
 
-			// Get neighbour
-			if neighbourEdge.vertices[0] != currentVertex {
-				neighbour = neighbourEdge.vertices[0]
-			} else if neighbourEdge.vertices[1] != currentVertex {
-				neighbour = neighbourEdge.vertices[1]
-			} else {
-				continue // Prevent loops
+			// Avoid loop edges
+			if neighbour == currentVertex {
+				continue
 			}
 
 			// animation related
