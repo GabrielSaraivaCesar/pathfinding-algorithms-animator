@@ -42,12 +42,19 @@ let getGridPixelSize = () => {
 let currentAnimationFrame = 0;
 let framesPerSecond = fpsInput.value;
 let animationInterval = null;
+let lastFrameT = new Date().getTime()
 
 function createAnimationInterval() {
     window.clearInterval(animationInterval);
+    let intervalTime = 1000/framesPerSecond;
+    if (intervalTime < 10) {
+        intervalTime = 10;
+    }
     animationInterval = window.setInterval(() => {
-        currentAnimationFrame += 1;
-    }, 1000/framesPerSecond)
+        let dt = new Date().getTime() - lastFrameT;
+        currentAnimationFrame += Math.round(dt / (1000/framesPerSecond));
+        lastFrameT = new Date().getTime();
+    }, intervalTime)
 }
 createAnimationInterval();
 
