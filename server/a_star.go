@@ -22,12 +22,12 @@ func AStar(graph *Graph, start *Vertex, finish *Vertex) ([]*Vertex, AnimationFra
 	var animationFrames AnimationFrames = AnimationFrames{CurrentVertex: []int{}, CheckingNeighbour: [][]int{}}
 
 	start.summedWeight = 0
-	queue.push(HeapItem{priority: 0, value: start})
+	queue.Push(HeapItem{priority: 0, value: start})
 
-	for queue.len() > 0 {
+	for queue.Len() > 0 {
 		currentVertex = queue.getByIndex(0).value.(*Vertex)
 		currentVertex.visited = true
-		queue.popRoot()
+		queue.PopRoot()
 		animationFrames.CurrentVertex = append(animationFrames.CurrentVertex, currentVertex.id)
 		animationFrames.CheckingNeighbour = append(animationFrames.CheckingNeighbour, []int{})
 
@@ -54,7 +54,7 @@ func AStar(graph *Graph, start *Vertex, finish *Vertex) ([]*Vertex, AnimationFra
 				animationFrames.CheckingNeighbour[len(animationFrames.CheckingNeighbour)-1] = append(animationFrames.CheckingNeighbour[len(animationFrames.CheckingNeighbour)-1], neighbour.id)
 				neighbour.summedWeight = newWeight
 				var heuristicWeight float64 = EulerDistance(neighbour, finish)
-				queue.push(HeapItem{priority: heuristicWeight, value: neighbour})
+				queue.Push(HeapItem{priority: heuristicWeight, value: neighbour})
 			}
 
 		}

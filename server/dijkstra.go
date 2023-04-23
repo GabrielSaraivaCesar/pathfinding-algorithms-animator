@@ -8,18 +8,50 @@ import (
 	"time"
 )
 
+func storeOrdered(targetSlice []*Vertex, vertex *Vertex) []*Vertex {
+	if len(targetSlice) == 0 {
+		targetSlice = append(targetSlice, vertex)
+		return targetSlice
+	}
+
+	var newSlice = make([]*Vertex, len(targetSlice)+1)
+	var wasStored bool = false
+	var newSliceIndex = 0
+	for i := 0; i < len(targetSlice); i++ {
+		if wasStored == false && vertex.summedWeight < targetSlice[i].summedWeight {
+			newSlice[newSliceIndex] = vertex
+			newSlice[newSliceIndex+1] = targetSlice[i]
+			newSliceIndex++
+			wasStored = true
+		} else {
+
+			newSlice[newSliceIndex] = targetSlice[i]
+		}
+		newSliceIndex++
+	}
+	if !wasStored {
+		newSlice[len(newSlice)-1] = vertex
+	}
+
+	return newSlice
+}
+
 func Dijkstra(graph *Graph, start *Vertex, finish *Vertex) ([]*Vertex, AnimationFrames) {
 	startTime := time.Now()
 	var animationFrames AnimationFrames = AnimationFrames{CurrentVertex: []int{}, CheckingNeighbour: [][]int{}}
 
 	start.summedWeight = 0
 	var unvisitedVertices []*Vertex = []*Vertex{start}
+	// var unvisitedVertices Heap
+	// unvisitedVertices.Push(HeapItem{priority: 0, value: start})
 
 	// Marking summed weights
 	for len(unvisitedVertices) > 0 {
+		// var currentVertex *Vertex = unvisitedVertices.getByIndex(0).value.(*Vertex)
 		var currentVertex *Vertex = unvisitedVertices[0]
 		currentVertex.visited = true
 		unvisitedVertices = unvisitedVertices[1:] // Removing current vertex from slice
+		// unvisitedVertices.PopRoot()
 
 		// Animation related
 		animationFrames.CurrentVertex = append(animationFrames.CurrentVertex, currentVertex.id)
@@ -53,7 +85,8 @@ func Dijkstra(graph *Graph, start *Vertex, finish *Vertex) ([]*Vertex, Animation
 
 			// Detect if is already in the list
 			if neighbour.isInUnvisitedSlice == false {
-				unvisitedVertices = append(unvisitedVertices, neighbour)
+				unvisitedVertices = storeOrdered(unvisitedVertices, neighbour)
+				// unvisitedVertices.Push(HeapItem{priority: neighbour.summedWeight, value: neighbour})
 				neighbour.isInUnvisitedSlice = true
 			}
 		}
