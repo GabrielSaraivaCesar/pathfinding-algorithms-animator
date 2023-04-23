@@ -41,17 +41,17 @@ func Dijkstra(graph *Graph, start *Vertex, finish *Vertex) ([]*Vertex, Animation
 	var animationFrames AnimationFrames = AnimationFrames{CurrentVertex: []int{}, CheckingNeighbour: [][]int{}}
 
 	start.summedWeight = 0
-	var unvisitedVertices []*Vertex = []*Vertex{start}
-	// var unvisitedVertices Heap
-	// unvisitedVertices.Push(HeapItem{priority: 0, value: start})
+	// var unvisitedVertices []*Vertex = []*Vertex{start}
+	var unvisitedVertices Heap
+	unvisitedVertices.Push(HeapItem{priority: 0, value: start})
 
 	// Marking summed weights
-	for len(unvisitedVertices) > 0 {
-		// var currentVertex *Vertex = unvisitedVertices.getByIndex(0).value.(*Vertex)
-		var currentVertex *Vertex = unvisitedVertices[0]
+	for unvisitedVertices.Len() > 0 {
+		var currentVertex *Vertex = unvisitedVertices.getByIndex(0).value.(*Vertex)
+		// var currentVertex *Vertex = unvisitedVertices[0]
 		currentVertex.visited = true
-		unvisitedVertices = unvisitedVertices[1:] // Removing current vertex from slice
-		// unvisitedVertices.PopRoot()
+		// unvisitedVertices = unvisitedVertices[1:] // Removing current vertex from slice
+		unvisitedVertices.PopRoot()
 
 		// Animation related
 		animationFrames.CurrentVertex = append(animationFrames.CurrentVertex, currentVertex.id)
@@ -85,8 +85,8 @@ func Dijkstra(graph *Graph, start *Vertex, finish *Vertex) ([]*Vertex, Animation
 
 			// Detect if is already in the list
 			if neighbour.isInUnvisitedSlice == false {
-				unvisitedVertices = storeOrdered(unvisitedVertices, neighbour)
-				// unvisitedVertices.Push(HeapItem{priority: neighbour.summedWeight, value: neighbour})
+				// unvisitedVertices = storeOrdered(unvisitedVertices, neighbour)
+				unvisitedVertices.Push(HeapItem{priority: neighbour.summedWeight, value: neighbour})
 				neighbour.isInUnvisitedSlice = true
 			}
 		}

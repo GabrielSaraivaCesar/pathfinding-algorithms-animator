@@ -60,17 +60,12 @@ func (heap *Heap) siftDown(index int) error {
 	rightChild, rightChildIndex, _ := heap.getRightChild(index)
 
 	if leftChild != nil {
-		if leftChild.priority < itemCopy.priority {
-			if rightChild == nil || (rightChild.priority > leftChild.priority) {
-				substituteByIndex = leftChildIndex
-			}
-		}
-	}
-	if rightChild != nil {
-		if rightChild.priority < itemCopy.priority {
-			if leftChild == nil || (leftChild.priority > rightChild.priority) {
+		if rightChild != nil && rightChild.priority < leftChild.priority {
+			if rightChild.priority < itemCopy.priority {
 				substituteByIndex = rightChildIndex
 			}
+		} else if leftChild.priority < itemCopy.priority {
+			substituteByIndex = leftChildIndex
 		}
 	}
 
