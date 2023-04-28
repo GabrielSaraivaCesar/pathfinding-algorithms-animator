@@ -25,10 +25,10 @@ let algorithmType = document.querySelector('input[name=algorithm-choice]:checked
 let enableDiagonalOptions = document.querySelectorAll('input[name=diagonals-enabled]');
 let enableDiagonal = document.querySelector('input[name=diagonals-enabled]:checked').value === "yes";
 
-let submitButton = document.querySelector('#action-buttons button#submit-button');
-let clearPathButton = document.querySelector('#action-buttons button#clear-path-button');
+let submitButton = document.querySelector('button#submit-button');
+let clearPathButton = document.querySelector('button#clear-path-button');
 clearPathButton.setAttribute('disabled', true);
-let clearAllButton = document.querySelector('#action-buttons button#clear-all-button');
+let clearAllButton = document.querySelector('button#clear-all-button');
 clearAllButton.setAttribute('disabled', true);
 
 let fpsInput = document.querySelector('input[name=fps]');

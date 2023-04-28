@@ -9,10 +9,39 @@
     <meta http-equiv="Pragma" content="no-cache"/>
     <meta http-equiv="Expires" content="0"/>
 
+    <link href="/client/static/fontawesome/css/fontawesome.css" rel="stylesheet">
+    <link href="/client/static/fontawesome/css/brands.css" rel="stylesheet">
+    <link href="/client/static/fontawesome/css/solid.css" rel="stylesheet">
+    
     <title>Algorithms Visualizer</title>
     <link rel="stylesheet" href="/client/static/style/main.css">
 </head>
 <body>
+    <div class="top-config-panel">
+    </div>
+    <div class="left-config-panel">
+        <div class="left-panel-text">Brush</div>
+        <div class="icon-button">
+            <input type="radio" checked name="brush-type" value="obstacle">
+            <div class="icon-button-fill"></div>
+            <i class="fa-solid fa-road-barrier"></i>
+        </div>
+        <div class="icon-button">
+            <input type="radio" checked name="brush-type" value="start">
+            <div class="icon-button-fill"></div>
+            <i class="fa-regular fa-flag"></i>
+        </div>
+        <div class="icon-button">
+            <input type="radio" checked name="brush-type" value="finish">
+            <div class="icon-button-fill"></div>
+            <i class="fa-solid fa-flag-checkered"></i>
+        </div>
+        <div class="icon-button">
+            <input type="radio" checked name="brush-type" value="eraser">
+            <div class="icon-button-fill"></div>
+            <i class="fa-solid fa-eraser"></i>
+        </div>
+    </div>
     <canvas oncontextmenu="return false;"></canvas>
     <div class="algorithm-config-panel">
         <label>
@@ -20,28 +49,7 @@
             <input name="gridcount" type="range" min="4" max="100" value="10" step="1" >
         </label>
         <div class="type-selection">
-            <span>Brush Type</span>
-            <div class="type-selection-buttons">
-                <label>
-                    <input type="radio" checked name="brush-type" value="obstacle">
-                    <div>Obstacle</div>
-                </label>
-                <label>
-                    <input type="radio" name="brush-type" value="start">
-                    <div>Start Point</div>
-                </label>
-                <label>
-                    <input type="radio" name="brush-type" value="finish">
-                    <div>Finish Point</div>
-                </label>
-                <label>
-                    <input type="radio" name="brush-type" value="eraser">
-                    <div>Eraser</div>
-                </label>
-            </div>
-        </div>
-        <div class="type-selection">
-            <span>Brush Type</span>
+            <span>Algorithm</span>
             <div class="type-selection-buttons">
                 <label>
                     <input type="radio" checked name="algorithm-choice" value="dijkstra">
@@ -70,11 +78,11 @@
             <span>FPS:</span>
             <input name="fps" type="number" min="1" value="10">
         </label>
-    </div>
-    <div id="action-buttons">
-        <button id="submit-button">Find Path!</button>
-        <button id="clear-all-button">Clear All</button>
-        <button id="clear-path-button" disabled>Clear Path</button>
+        <div id="action-buttons">
+            <button id="submit-button">Find Path!</button>
+            <button id="clear-path-button" disabled>Clear Path</button>
+            <button id="clear-all-button">Clear All</button>
+        </div>
     </div>
     <script src="/client/static/scripts/main.js" type="module"></script>
 </body>
