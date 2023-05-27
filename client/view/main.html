@@ -14,10 +14,16 @@
     <link href="/client/static/fontawesome/css/solid.css" rel="stylesheet">
     
     <title>Algorithms Visualizer</title>
-    <link rel="stylesheet" href="/client/static/style/main.css">
+    <link rel="stylesheet" href="/client/static/_out_style/main.css">
 </head>
 <body>
     <div class="top-config-panel">
+        <custom-select value="a-star" label="Select an Algorithm">
+            <custom-select-dropdown>
+                <option value="dijkstra">Dijkstra</option>
+                <option value="a-star">A*</option>
+            </custom-select-dropdown>
+        </custom-select>
     </div>
     <div class="left-config-panel">
         <div class="left-panel-text">Brush</div>
@@ -27,23 +33,24 @@
             <i class="fa-solid fa-road-barrier"></i>
         </div>
         <div class="icon-button">
-            <input type="radio" checked name="brush-type" value="start">
+            <input type="radio" name="brush-type" value="start">
             <div class="icon-button-fill"></div>
             <i class="fa-regular fa-flag"></i>
         </div>
+        
         <div class="icon-button">
-            <input type="radio" checked name="brush-type" value="finish">
+            <input type="radio" name="brush-type" value="finish">
             <div class="icon-button-fill"></div>
             <i class="fa-solid fa-flag-checkered"></i>
         </div>
         <div class="icon-button">
-            <input type="radio" checked name="brush-type" value="eraser">
+            <input type="radio" name="brush-type" value="eraser">
             <div class="icon-button-fill"></div>
             <i class="fa-solid fa-eraser"></i>
         </div>
     </div>
     <canvas oncontextmenu="return false;"></canvas>
-    <div class="algorithm-config-panel">
+    <div class="right-config-panel">
         <label>
             <span>Grid Size: <span id="gridcount-display"></span></span>
             <input name="gridcount" type="range" min="4" max="100" value="10" step="1" >
@@ -85,5 +92,8 @@
         </div>
     </div>
     <script src="/client/static/scripts/main.js" type="module"></script>
+
+    <!-- Web components -->
+    <script src="/client/static/scripts/shared/web_components/custom_select.js"></script>
 </body>
 </html>

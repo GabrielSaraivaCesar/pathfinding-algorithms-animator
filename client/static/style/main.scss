@@ -1,0 +1,39 @@
+// Main Page
+@import "./config_panels.scss";
+
+
+// Web components
+@import "./web_components/custom_select.scss";
+
+* {
+    padding: 0;
+    margin: 0;
+    box-sizing: border-box;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+:root {
+    --gray: rgba(0, 0, 0, 0.1);
+    --gray-light: rgba(0, 0, 0, 0.05);
+    --gray-dark: rgba(0, 0, 0, 0.5);
+    --blue: rgb(73, 121, 255);
+    --blue-dark: rgba(0, 68, 255, 0.555);
+    --round-edges: 6px;
+}
+
+body {
+    height: 100vh;
+    width: 100vw;
+    overflow: hidden;
+    display: flex;
+    flex-wrap: wrap;
+}
+
+canvas {
+    width: calc(100% - 300px - 80px);
+    height: calc(100% - 60px);
+    user-select: none; /* standard syntax */
+    -webkit-user-select: none; /* webkit (safari, chrome) browsers */
+    -moz-user-select: none; /* mozilla browsers */
+    -khtml-user-select: none; /* webkit (konqueror) browsers */
+    -ms-user-select: none; /* IE10+ */
+}

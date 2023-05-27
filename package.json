@@ -1,0 +1,17 @@
+{
+  "name": "pathfinding-algorithms-animator",
+  "version": "1.0.0",
+  "description": "The aim of this project is to create an animator that demonstrates the behavior of various pathfinding algorithms.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "gin -i run main.go",
+    "sass": "sass --watch client/static/style:client/static/_out_style"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "nodemon": "^2.0.22",
+    "sass": "^1.62.1"
+  }
+}

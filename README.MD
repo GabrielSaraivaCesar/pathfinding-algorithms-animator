@@ -1,10 +1,10 @@
 # Pathfinding Algorithms Animator
 The aim of this project is to create an animator that demonstrates the behavior of various pathfinding algorithms.
 
-The project is developed using HTML, CSS, JavaScript, and Golang.
+The project is developed using HTML, SASS, JavaScript, and Golang.
 <div float="left">
     <img src="readme_files/html.svg" width=40>&nbsp;&nbsp;&nbsp;&nbsp;
-    <img src="readme_files/css.svg" width=50>
+    <img src="readme_files/sass.svg" width=50>
     &nbsp;&nbsp;&nbsp;&nbsp;
     <img src="readme_files/javascript.svg" width=50>
     &nbsp;&nbsp;&nbsp;&nbsp;

@@ -1,0 +1,187 @@
+
+.top-config-panel {
+    width: 100%;
+    height: 60px;
+    border-bottom: 2px solid var(--gray);
+    display: flex;
+    align-items: center;
+    padding: 0 calc( 70px + 12px);
+}
+
+.left-config-panel {
+    height: 100%;
+    width: 70px;
+    background-color: white;
+    padding: 24px 10px;
+    border-right: 2px solid var(--gray);
+    .left-panel-text {
+        font-size: 10px;
+        font-weight: 600;
+        margin-bottom: 12px;
+        margin-left: 5px;
+    }
+    .icon-button {
+        width: 100%;
+        height: 48px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: var(--round-edges);
+        cursor: pointer;
+        position: relative;
+        overflow: hidden;
+        margin-bottom: 5px;
+        border: 1px solid var(--gray);
+        &:hover {
+            background-color: var(--gray-light);
+        }
+        .icon-button-fill {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1;
+        
+        }
+        input {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 3;
+            opacity: 0;
+            margin: 0;
+            cursor: pointer;
+            &:checked, &.partially-checked {
+                ~ i {
+                    color: #fff;
+                }
+                ~ .icon-button-fill {
+                    background-color: var(--blue);
+                }
+            }
+            &.partially-checked {
+                ~ .icon-button-fill {
+                    background-color: var(--blue-dark);
+                }
+            }
+        }
+        i {
+            z-index: 2;
+        }
+    }
+}
+
+.right-config-panel {
+    width: 300px;
+    background-color: #fff;
+    padding: 12px 0 24px;
+    overflow: auto;
+    border-left: 2px solid var(--gray);
+    height: 100vh;
+    label {
+        width: 100%;
+        padding: 15px 20px;
+        display: flex;
+        flex-direction: column;
+        input {
+            border: 1px solid var(--gray);
+            height: 50px;
+            outline: none;
+            border-radius: var(--round-edges);
+            margin-top: 12px;
+            padding: 0 12px;
+        }
+    }
+    .type-selection {
+        padding: 15px 20px;
+        label {
+            height: 50px;
+            width: 100%;
+            position: relative;
+        }
+        > span {
+            margin-bottom: 12px;
+            display: block;
+        }
+        .type-selection-buttons.type-selection-buttons-aside {
+            display: flex;
+            flex-direction: row;
+        }
+        .type-selection-buttons {
+            overflow: hidden;
+            border-radius: var(--round-edges);
+            input {
+                position: absolute;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                z-index: 2;
+                opacity: 0;
+                margin: 0;
+                cursor: pointer;
+            }
+            input ~ div {
+                position: absolute;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                z-index: 1;
+                background-color: rgb(241, 241, 241);
+                display: flex;
+                align-items: center;
+                justify-content: center;
+            }
+            input:checked ~ div {
+                background-color: rgb(73, 121, 255);
+                color: #fff;
+            }
+            input:not(:checked).partially-checked ~ div {
+                background-color: rgba(0, 68, 255, 0.555);
+                color: #fff;
+            }
+        }
+    }
+
+    #action-buttons {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        padding: 24px ;
+        button {
+            background-color: rgb(73, 121, 255);
+            border: none;
+            font-size: 18px;
+            padding: 10px 30px;
+            border-radius: 6px;
+            color: #fff;
+            cursor: pointer;
+            margin-bottom: 20px;
+            &:hover {
+                background-color: rgb(58, 93, 192);
+            }
+            &:disabled {
+                opacity: 0.3;
+                cursor: default;
+            }
+            &#clear-path-button {
+                background-color: rgb(235, 144, 41);
+                &:hover {
+                    background-color: rgb(170, 105, 30);
+                }
+            }
+            &#clear-all-button {
+                background-color: rgb(235, 41, 41);
+                &:hover {
+                    background-color: rgb(170, 30, 30);
+                }
+            }
+        }
+    }
+}
+
+
